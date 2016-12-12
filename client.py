@@ -55,8 +55,8 @@ async def fetch(session, url, page):
 async def top_pages_parser(loop, limit):
     conn = aiohttp.TCPConnector(limit=limit)
     async with aiohttp.ClientSession(loop=loop, connector=conn) as session:
-        last_page = 2*limit
-        pages_for_parsing = list(range(0, last_page))
+        next_page = 2*limit
+        pages_for_parsing = list(range(0, next_page))
 
         while pages_for_parsing:
             tasks = []
@@ -77,9 +77,8 @@ async def top_pages_parser(loop, limit):
                 await asyncio.sleep(len(too_many_requests_pages)*3, loop)
                 pages_for_parsing = too_many_requests_pages
             elif all(titles_count for page, titles_count, has_429 in page_results):
-                next_last_page = last_page + 2 * limit
-                pages_for_parsing = list(range(last_page, next_last_page))
-                last_page = next_last_page
+                new_next_page = next_page + 2*limit
+                pages_for_parsing, next_page = list(range(next_page, new_next_page)), new_next_page
             else:
                 pages_for_parsing = []
 
