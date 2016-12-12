@@ -1,4 +1,5 @@
 from datetime import datetime
+from http import HTTPStatus
 
 import aiohttp
 import asyncio
@@ -32,9 +33,9 @@ async def fetch(session, url, page):
         async with session.get(url) as response:
             logger.info('code: {}, url: {}'.format(response.status, url))
 
-            has_429_status = response.status == 429
-            if has_429_status:
-                return page, 0, has_429_status
+            too_many_requests = response.status == HTTPStatus.TOO_MANY_REQUESTS
+            if too_many_requests:
+                return page, 0, too_many_requests
 
             html = await response.text()
             parsed_data = AnimeTopParser(url, html).parse()
@@ -49,7 +50,7 @@ async def fetch(session, url, page):
                     existed_model.score = score
                     objects.update(AnimeModel, existed_model)
 
-            return page, len(parsed_data), has_429_status
+            return page, len(parsed_data), too_many_requests
 
 async def top_pages_parser(loop, limit):
     conn = aiohttp.TCPConnector(limit=limit)
@@ -64,12 +65,17 @@ async def top_pages_parser(loop, limit):
                 task = asyncio.ensure_future(fetch(session, url, page))
                 tasks.append(task)
 
-            page_results = await asyncio.gather(*tasks)
-            pages_with_429 = [page for page, titles, has_429 in page_results if has_429]
-            if pages_with_429:
-                logger.info("sleep: 429 status for pages: {}".format(pages_with_429))
-                await asyncio.sleep(len(pages_with_429)*3, loop)
-                pages_for_parsing = pages_with_429
+            try:
+                page_results = await asyncio.gather(*tasks)
+            except asyncio.TimeoutError:
+                logger.error("mal not response")
+                return
+
+            too_many_requests_pages = [page for page, titles, too_many_requests in page_results if too_many_requests]
+            if too_many_requests_pages:
+                logger.info("sleep: 429 status for pages: {}".format(too_many_requests_pages))
+                await asyncio.sleep(len(too_many_requests_pages)*3, loop)
+                pages_for_parsing = too_many_requests_pages
             elif all(titles_count for page, titles_count, has_429 in page_results):
                 next_last_page = last_page + 2 * limit
                 pages_for_parsing = list(range(last_page, next_last_page))
