@@ -29,18 +29,19 @@ database.set_allow_sync(False)
 
 class AnimeTopLoader:
     def __init__(self, loop, limit):
+        self.results = asyncio.Queue(maxsize=4*50, loop=loop)
+
         self._loop = loop
         self._conn = aiohttp.TCPConnector(limit=limit)
         self._limit = limit
-        self.results = asyncio.Queue(maxsize=4*50, loop=loop)
         self._next_page = 0
         self._session = aiohttp.ClientSession(loop=loop, connector=self._conn)
 
         self._next_pages_add = []
         self._parsing = True
 
-    def _get_next_pages(self):
-        while True:
+    def _next_pages_generator(self):
+        while self._parsing or self._next_pages_add:
             if self._next_pages_add:
                 pages_for_parsing = self._next_pages_add
                 self._next_pages_add = []
@@ -49,6 +50,9 @@ class AnimeTopLoader:
                 pages_for_parsing = range(self._next_page, new_next_page)
                 self._next_page = new_next_page
             yield pages_for_parsing
+
+    def _stop_page_generator(self):
+        self._parsing = False
 
     def _add_next_pages(self, pages):
         self._next_pages_add.extend(pages)
@@ -68,7 +72,7 @@ class AnimeTopLoader:
 
         if too_many_requests_pages:
             logger.info("sleep: 429 status for pages: {}".format(too_many_requests_pages))
-            await asyncio.sleep(len(too_many_requests_pages) * 3, loop)
+            await asyncio.sleep(len(too_many_requests_pages), loop)
             self._add_next_pages(too_many_requests_pages)
 
         return has_empty_list
@@ -76,7 +80,7 @@ class AnimeTopLoader:
     async def top_pages_parser(self):
         async with self._session:
 
-            for pages_for_parsing in self._get_next_pages():
+            for pages_for_parsing in self._next_pages_generator():
                 tasks = []
                 for page in pages_for_parsing:
                     url = 'https://myanimelist.net/topanime.php?limit={}'.format(page * 50)
@@ -87,14 +91,13 @@ class AnimeTopLoader:
                     page_results = await asyncio.gather(*tasks)
                 except asyncio.TimeoutError:
                     logger.error("mal not response")
-                    self.results.task_done()
                     break
 
                 has_empty_list = await self.process_pages_results(page_results)
                 if has_empty_list:
-                    break
+                    self._stop_page_generator()
 
-        self._parsing = False
+            await self.results.put(None)
 
     async def fetch(self, url, page):
         with aiohttp.Timeout(30, loop=self._loop):
@@ -110,7 +113,8 @@ class AnimeTopLoader:
                 return page, parsed_data, too_many_requests
 
     async def saver(self):
-        while self._parsing or self.results.qsize():
+        res = True
+        while res:
             # for id, title, score in parsed_data:
             #     try:
             #         existed_model = await objects.get(AnimeModel, AnimeModel.id == id)
@@ -121,12 +125,15 @@ class AnimeTopLoader:
             #         existed_model.score = score
             #         objects.update(AnimeModel, existed_model)
             res = await self.results.get()
+            if res is None:
+                break
+            # print(res)
             # print(map(len, res), end='')
 
 
 async def infinite_top_parser(loop, sleep):
     while True:
-        parser = AnimeTopLoader(loop, limit=10)
+        parser = AnimeTopLoader(loop, limit=30)
         parser_task = asyncio.ensure_future(parser.top_pages_parser())
         saver_task = asyncio.ensure_future(parser.saver())
 
@@ -137,4 +144,4 @@ async def infinite_top_parser(loop, sleep):
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(infinite_top_parser(loop, sleep=10))
+    loop.run_until_complete(infinite_top_parser(loop, sleep=100))
