@@ -1,23 +1,26 @@
 import calendar
 from collections import defaultdict
 from datetime import datetime
-from lxml import etree
+import lxml.html
 
 from dateutil.parser import parse
 from pyquery import PyQuery as pq
 
 
 class AnimeParser:
-    def __init__(self, html):
+    def __init__(self, url, html):
         self._html = html
         self._pq = pq(html)
-        self._tree = etree.parse(html)
+        self._tree = lxml.html.fromstring(html)
 
-    @staticmethod
+    def parse(self):
+        return self.get_all_fields_dict()
+
     def get_all_fields_dict(self):
         title = self.get_title()
         type = self.get_type()
-        image = self.get_image()
+        # image = self.get_image()
+        image = ''
         episodes = self.get_episodes()
         status = self.get_status()
         rating = self.get_rating()
@@ -69,7 +72,7 @@ class AnimeParser:
 
     def get_related(self):
         result = defaultdict(list)
-        for tr in grab.doc.pyquery('.anime_detail_related_anime tr').items():
+        for tr in self._pq('.anime_detail_related_anime tr').items():
             related = tr('td:first').text().lower()[:-1]
             for link in tr('a').items():
                 related_url = link.attr['href']
@@ -78,16 +81,16 @@ class AnimeParser:
         return result
 
     def get_title(self):
-        return grab.doc.tree.xpath('//h1/span/text()')[0].strip()
+        return self._tree.xpath('//h1/span/text()')[0].strip()
 
     def get_type(self):
-        return grab.doc.tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Type:"]/../a/text()')[0]
+        return self._tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Type:"]/../a/text()')[0]
 
     def get_image(self):
-        return grab.doc.tree.xpath('//*[@id="content"]/table/tr/td[1]/div[1]//img')[0].attrib['data-src']
+        return self._tree.xpath('//*[@id="content"]/table/tr/td[1]/div[1]//img')[0].attrib['data-src']
 
     def get_episodes(self):
-        episodes = grab.doc.tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Episodes:"]')[0].tail.strip()
+        episodes = self._tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Episodes:"]')[0].tail.strip()
         if episodes and episodes != 'Unknown':
             episodes = int(episodes)
         else:
@@ -95,57 +98,57 @@ class AnimeParser:
         return episodes
 
     def get_status(self):
-        return grab.doc.tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Status:"]')[0].tail.strip()
+        return self._tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Status:"]')[0].tail.strip()
 
     def get_rating(self):
-        return grab.doc.tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Rating:"]')[0].tail.strip()
+        return self._tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Rating:"]')[0].tail.strip()
 
     def get_english(self):
-        xpath_result = grab.doc.tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="English:"]')
+        xpath_result = self._tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="English:"]')
         if xpath_result:
             return xpath_result[0].tail.strip()
 
     def get_synonyms(self):
-        xpath_result = grab.doc.tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Synonyms:"]')
+        xpath_result = self._tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Synonyms:"]')
         if xpath_result:
             return xpath_result[0].tail.strip()
 
     def get_japanese(self):
-        xpath_result = grab.doc.tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Japanese:"]')
+        xpath_result = self._tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Japanese:"]')
         if xpath_result:
             return xpath_result[0].tail.strip()
 
     def get_members(self):
-        text = grab.doc.tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Members:"]')[0].tail
+        text = self._tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Members:"]')[0].tail
         return int(text.replace(',', '').strip())
 
     def get_favorites(self):
-        text = grab.doc.tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Favorites:"]')[0].tail
+        text = self._tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Favorites:"]')[0].tail
         return int(text.replace(',', '').strip())
 
     def get_scored(self):
-        members = grab.doc.pyquery('[itemprop="ratingCount"]').text().replace(',', '')
+        members = self._pq('[itemprop="ratingCount"]').text().replace(',', '')
         if not members:
-            scored_str = grab.doc.tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Score:"]/../small')
+            scored_str = self._tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Score:"]/../small')
             members = scored_str[0].text.split()[-2] if scored_str else ''
 
         if not members:
-            span = grab.doc.tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Score:"]/../span[3]/text()')
+            span = self._tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Score:"]/../span[3]/text()')
             members = span[0] if span else ''
         return int(members)
 
     def get_score(self):
-        score = grab.doc.pyquery('[itemprop="ratingValue"]').text()
+        score = self._pq('[itemprop="ratingValue"]').text()
         if not score:
-            score_str = grab.doc.tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Score:"]/../text()')
+            score_str = self._tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Score:"]/../text()')
             score = score_str[0].strip() if score_str else ''
         if not score:
-            span = grab.doc.tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Score:"]/../span[2]/text()')
+            span = self._tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Score:"]/../span[2]/text()')
             score = span[0] if span else ''
         return float(score)
 
     def get_duration(self):
-        duration_str = grab.doc.tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Duration:"]')[0].tail.strip()
+        duration_str = self._tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Duration:"]')[0].tail.strip()
         if duration_str != 'Unknown':
             duration = self.parse_duration_time(duration_str)
         else:
@@ -153,15 +156,15 @@ class AnimeParser:
         return duration
 
     def get_aired(self):
-        return grab.doc.tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Aired:"]')[0].tail.strip()
+        return self._tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Aired:"]')[0].tail.strip()
 
     def get_synopsis(self):
-        description = grab.doc.pyquery('[itemprop="description"]').text()
-        description = description or grab.pyquery('h2:contains("Synopsis")').parent().text()[14:]
+        description = self._pq('[itemprop="description"]').text()
+        description = description or self._pq('h2:contains("Synopsis")').parent().text()[14:]
         return description
 
     def get_genres(self):
-        return grab.doc.tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Genres:"]/../a/text()')
+        return self._tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Genres:"]/../a/text()')
 
     def get_producers(self):
-        return grab.doc.tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Producers:"]/../a/text()')
+        return self._tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Producers:"]/../a/text()')
