@@ -1,7 +1,7 @@
 from aiohttp import web
 import asyncio
 
-from parser.anime_spider import AnimeTopSpider
+from parser.anime_spider import AnimeTopSpider, AnimeSpider
 
 
 async def handle(request):
@@ -11,8 +11,10 @@ async def handle(request):
 
 app = web.Application()
 
+anime_top_updater = AnimeTopSpider(app.loop, 1)
+asyncio.ensure_future(anime_top_updater.start_parser())
 
-anime_updater = AnimeTopSpider(app.loop, 5)
+anime_updater = AnimeSpider(app.loop, 1)
 asyncio.ensure_future(anime_updater.start_parser())
 
 app.router.add_get('/', handle)

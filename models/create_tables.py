@@ -1,8 +1,9 @@
 from db import database
-from models.anime import AnimeModel
+from models.anime import TitleModel, TitleGenreModel
 
 database.connect()
 
-AnimeModel.create_table()
+TitleModel.create_table(fail_silently=True)
+TitleGenreModel.create_table(fail_silently=True)
 
 database.close()

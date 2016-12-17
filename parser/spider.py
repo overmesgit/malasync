@@ -40,9 +40,10 @@ class AbstractAsyncSpider:
     async def _page_parser(self):
         async with self._session:
             while self._parsing:
-                url = await self._get_next_url_or_retry()
-                await self.processing_urls_queue.put(url)
-                asyncio.ensure_future(self._process_url(url))
+                holder = {'url': ''}
+                await self.processing_urls_queue.put(holder)
+                holder['url'] = await self._get_next_url_or_retry()
+                asyncio.ensure_future(self._process_url(holder['url']))
             await self.processing_urls_queue.join()
             await self.results_queue.put(None)
 

@@ -6,44 +6,52 @@ import lxml.html
 from dateutil.parser import parse
 from pyquery import PyQuery as pq
 
+from log import logger
+
 
 class AnimeParser:
     def __init__(self, url, html):
         self._html = html
         self._pq = pq(html)
+        self._url = url
         self._tree = lxml.html.fromstring(html)
 
     def parse(self):
         return self.get_all_fields_dict()
 
     def get_all_fields_dict(self):
-        title = self.get_title()
-        type = self.get_type()
-        # image = self.get_image()
-        image = ''
-        episodes = self.get_episodes()
-        status = self.get_status()
-        rating = self.get_rating()
-        members_score = self.get_score()
-        duration = self.get_duration()
-        synopsis = self.get_synopsis()
-        genres = self.get_genres()
-        members = self.get_members()
-        scored = self.get_scored()
-        english = self.get_english()
-        japanese = self.get_japanese()
-        synonyms = self.get_synonyms()
-        producers = self.get_producers()
-        favorites = self.get_favorites()
+        fields = {
+            'title': self.get_title,
+            'type': self.get_type,
+            'episodes': self.get_episodes,
+            'related': self.get_related,
+            'status': self.get_status,
+            'genres': self.get_genres,
+            'rating': self.get_rating,
+            'members_score': self.get_score,
+            'aired_from_to': self.get_aired_from_to,
+            'duration': self.get_duration,
+            'synopsis': self.get_synopsis,
+            'english': self.get_english,
+            'image': self.get_image,
+            'members': self.get_members,
+            'japanese': self.get_japanese,
+            'synonyms': self.get_synonyms,
+            'scores': self.get_scored,
+            'producers': self.get_producers,
+            'favorites': self.get_favorites,
+            'id': self.get_id
+        }
+        res = {}
+        for name, func in fields.items():
+            try:
+                res[name] = func()
+            except ValueError as e:
+                logger.error('parsing error({}) for field {}'.format(self._url, e))
+        return res
 
-        aired_from, aired_to = self.get_aired_from_to()
-
-        related = self.get_related()
-        return {'title': title, 'type': type, 'episodes': episodes, 'status': status, 'genres': genres,
-                'rating': rating, 'members_score': members_score, 'related': related,
-                'aired_from': aired_from, 'aired_to': aired_to, 'duration': duration, 'synopsis': synopsis,
-                'image': image, 'members': members, 'english': english, 'japanese': japanese, 'synonyms': synonyms,
-                'scores': scored, 'producers': producers, 'favorites': favorites}
+    def get_id(self):
+        return self._url.split('/')[-1]
 
     def get_aired_from_to(self):
         aired_from_to = self.get_aired()
@@ -87,7 +95,7 @@ class AnimeParser:
         return self._tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Type:"]/../a/text()')[0]
 
     def get_image(self):
-        return self._tree.xpath('//*[@id="content"]/table/tr/td[1]/div[1]//img')[0].attrib['data-src']
+        return self._tree.xpath('//*[@id="content"]/table/tr/td[1]/div/div[1]/a/img')[0].attrib['src']
 
     def get_episodes(self):
         episodes = self._tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Episodes:"]')[0].tail.strip()
