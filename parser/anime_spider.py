@@ -65,10 +65,12 @@ class AnimeSpider(AbstractAsyncSpider):
     async def save_result(self, parsed_data):
         fields = {
             'last_update': datetime.now(),
-            'aired_from': datetime.utcfromtimestamp(parsed_data['aired_from_to'][0]),
-            'aired_to': datetime.utcfromtimestamp(parsed_data['aired_from_to'][1]),
         }
-        # update genres
+
+        air_from, air_to = parsed_data['aired_from_to']
+        fields['aired_from'] = datetime.utcfromtimestamp(air_from) if air_from else None
+        fields['aired_to'] = datetime.utcfromtimestamp(air_to) if air_to else None
+
         copy_fields = {'title', 'episodes', 'members_score', 'duration', 'synopsis', 'english', 'image', 'members',
                        'japanese', 'scores', 'favorites', 'genres', 'type', 'status'}
         fields.update({n: parsed_data[n] for n in copy_fields})

@@ -46,8 +46,8 @@ class AnimeParser:
         for name, func in fields.items():
             try:
                 res[name] = func()
-            except ValueError as e:
-                logger.error('parsing error({}) for field {}'.format(self._url, e))
+            except (ValueError, IndexError) as e:
+                logger.error('parsing error {} ({}) for field {}'.format(e, self._url, name))
         return res
 
     def get_id(self):
@@ -92,7 +92,12 @@ class AnimeParser:
         return self._tree.xpath('//h1/span/text()')[0].strip()
 
     def get_type(self):
-        return self._tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Type:"]/../a/text()')[0]
+        type_node = self._tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Type:"]/../a/text()')
+        if type_node:
+            return type_node[0]
+        else:
+            type_node = self._tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Type:"]/../text()')[1]
+            return type_node.strip()
 
     def get_image(self):
         return self._tree.xpath('//*[@id="content"]/table/tr/td[1]/div/div[1]/a/img')[0].attrib['src']
