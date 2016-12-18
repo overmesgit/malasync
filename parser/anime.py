@@ -85,7 +85,8 @@ class AnimeParser:
             for link in tr('a').items():
                 related_url = link.attr['href']
                 related_type, str_id = related_url.split('/')[1:3]
-                result[related].append({'t': related_type, 'i': int(str_id)})
+                if str_id:
+                    result[related].append({'t': related_type, 'i': int(str_id)})
         return result
 
     def get_title(self):
