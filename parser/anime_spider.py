@@ -1,7 +1,8 @@
 import asyncio
+from datetime import datetime
 
 from log import logger
-from models.anime import TitleModel, TYPE_TO_INT, STATUS_TO_INT, TitleGenreModel, GENRES_TO_INT
+from models.anime import TitleModel
 from parser.anime import AnimeParser
 from parser.spider import AbstractAsyncSpider
 from parser.top import AnimeTopParser
@@ -45,8 +46,12 @@ class AnimeSpider(AbstractAsyncSpider):
 
     async def get_next_url(self):
         from async_db import objects
-        query = TitleModel.select(TitleModel.id).order_by(TitleModel.last_update).limit(1)
+        query = TitleModel.select(TitleModel.id).where(TitleModel.last_update.is_null(True)).limit(1)
         next_ids = (await objects.scalar(query, as_tuple=True))
+        if not next_ids:
+            query = TitleModel.select(TitleModel.id).order_by(TitleModel.last_update).limit(1)
+            next_ids = (await objects.scalar(query, as_tuple=True))
+
         if next_ids:
             return self.url_format.format(next_ids[0])
         else:
@@ -58,20 +63,14 @@ class AnimeSpider(AbstractAsyncSpider):
         return AnimeParser(url, html).parse()
 
     async def save_result(self, parsed_data):
-        await self.save_genres(parsed_data['id'], parsed_data['genres'])
         fields = {
-            'type': TYPE_TO_INT[parsed_data['type']],
-            'status': STATUS_TO_INT[parsed_data['status']],
-
+            'last_update': datetime.now(),
+            'aired_from': datetime.utcfromtimestamp(parsed_data['aired_from_to'][0]),
+            'aired_to': datetime.utcfromtimestamp(parsed_data['aired_from_to'][1]),
         }
         # update genres
         copy_fields = {'title', 'episodes', 'members_score', 'duration', 'synopsis', 'english', 'image', 'members',
-                       'japanese', 'scores', 'favorites'}
+                       'japanese', 'scores', 'favorites', 'genres', 'type', 'status'}
         fields.update({n: parsed_data[n] for n in copy_fields})
         update_query = TitleModel.update(**fields).where(TitleModel.id == parsed_data['id'])
         await self.objects.execute(update_query)
-
-    async def save_genres(self, anime_id, genres):
-        genres_data = [{'anime': anime_id, 'genre': GENRES_TO_INT[g]} for g in genres]
-        insert_query = TitleGenreModel.insert_many(genres_data)
-        await self.objects.execute(insert_query)
