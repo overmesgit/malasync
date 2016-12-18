@@ -23,7 +23,7 @@ class AnimeTopSpider(AbstractAsyncSpider):
     async def save_result(self, parsed_data):
         from async_db import objects
         if not parsed_data:
-            self.iterator = iter(range(0, 100000, 50))
+            self.stop_parsing()
         else:
             for title_data in parsed_data:
                 id, title, score = title_data
@@ -72,7 +72,7 @@ class AnimeSpider(AbstractAsyncSpider):
         fields['aired_to'] = datetime.utcfromtimestamp(air_to) if air_to else None
 
         copy_fields = {'title', 'episodes', 'members_score', 'duration', 'synopsis', 'english', 'image', 'members',
-                       'japanese', 'scores', 'favorites', 'genres', 'type', 'status'}
+                       'japanese', 'scores', 'favorites', 'genres', 'type', 'status', 'rating', 'producers'}
         fields.update({n: parsed_data[n] for n in copy_fields})
         update_query = TitleModel.update(**fields).where(TitleModel.id == parsed_data['id'])
         await self.objects.execute(update_query)

@@ -18,8 +18,10 @@ class TitleModel(Model):
     genres = BinaryJSONField(null=True, index=True)
     image = CharField(null=True)
     japanese = CharField(null=True, index=True)
-    # related
     members = IntegerField(null=True, index=True)
+    # related
+    producers = BinaryJSONField(null=True, index=True)
+    rating = CharField(null=True, index=True)
     scores = IntegerField(null=True, index=True)
     status = CharField(null=True, index=True)
     synopsis = TextField(null=True, index=True)

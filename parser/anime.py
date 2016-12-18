@@ -74,8 +74,8 @@ class AnimeParser:
             hr = int(hr_split[0].strip())
             time_str = hr_split[1]
 
-        min_split = time_str.split('min.')[0].strip()
-        minutes = int(min_split) if min_split else 0
+        min_split = time_str.split('min.')
+        minutes = int(min_split[0].strip()) if len(min_split) > 1 else 0
         return hr*60 + minutes
 
     def get_related(self):
