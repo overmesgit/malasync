@@ -178,7 +178,11 @@ class AnimeParser:
         return description
 
     def get_genres(self):
-        return self._tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Genres:"]/../a/text()')
+        raw_genres = self._tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Genres:"]/../a/text()')
+        empty_genres = 'add some'
+        if raw_genres and empty_genres in raw_genres:
+            raw_genres.remove(empty_genres)
+        return raw_genres
 
     def get_producers(self):
         return self._tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Producers:"]/../a/text()')
