@@ -7,7 +7,7 @@ from parser.anime_spider import AnimeTopSpider, AnimeSpider
 from views import index, title_api
 
 app = web.Application()
-aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader('templates'))
+aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader('static'))
 
 # TODO: infinite
 anime_top_updater = AnimeTopSpider(app.loop, 1)

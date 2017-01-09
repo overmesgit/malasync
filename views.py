@@ -8,7 +8,7 @@ from models.anime import TitleModel
 from utils import format_dates, compress_json
 
 
-@aiohttp_jinja2.template('index.html')
+@aiohttp_jinja2.template('index-aio.html')
 async def index(request):
     return {}
 
