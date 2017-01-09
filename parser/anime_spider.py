@@ -67,12 +67,12 @@ class AnimeSpider(AbstractAsyncSpider):
             'last_update': datetime.now(),
         }
         if len(parsed_data) > 1:
-            air_from, air_to = parsed_data['aired_from_to']
+            air_from, air_to = parsed_data.get('aired_from_to', (None, None))
             fields['aired_from'] = datetime.utcfromtimestamp(air_from) if air_from else None
             fields['aired_to'] = datetime.utcfromtimestamp(air_to) if air_to else None
 
             copy_fields = {'title', 'episodes', 'members_score', 'duration', 'synopsis', 'english', 'image', 'members',
                            'japanese', 'scores', 'favorites', 'genres', 'type', 'status', 'rating', 'producers'}
-            fields.update({n: parsed_data[n] for n in copy_fields})
+            fields.update({n: parsed_data[n] for n in copy_fields if n in parsed_data})
         update_query = TitleModel.update(**fields).where(TitleModel.id == parsed_data['id'])
         await self.objects.execute(update_query)
