@@ -60,6 +60,9 @@ class AnimeParser:
 
     def get_aired_from_to(self):
         aired_from_to = self.get_aired()
+        if aired_from_to == 'Not available':
+            return None, None
+
         aired_split = aired_from_to.split('to')
         default_date = datetime.today().replace(month=1, day=1)
         aired_from = calendar.timegm(parse(aired_split[0].strip(), fuzzy=True, default=default_date).utctimetuple())

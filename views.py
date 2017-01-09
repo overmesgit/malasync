@@ -1,5 +1,7 @@
 
 import aiohttp_jinja2
+import ujson
+from aiohttp import web
 
 from playhouse.shortcuts import model_to_dict
 
@@ -16,4 +18,4 @@ async def title_api(request):
     query = TitleModel.select().limit(100)
     data = await objects.execute(query)
     resp_data = {'meta': {}, 'data': [format_dates(model_to_dict(m)) for m in data]}
-    return await compress_json(request, resp_data)
+    return web.json_response(resp_data, dumps=ujson.dumps)
