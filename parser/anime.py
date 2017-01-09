@@ -11,10 +11,11 @@ from log import logger
 
 class AnimeParser:
     def __init__(self, url, html):
-        self._html = html
-        self._pq = pq(html)
         self._url = url
-        self._tree = lxml.html.fromstring(html)
+        self._html = html
+        if html:
+            self._pq = pq(html)
+            self._tree = lxml.html.fromstring(html)
 
     def parse(self):
         return self.get_all_fields_dict()
@@ -43,11 +44,15 @@ class AnimeParser:
             'id': self.get_id
         }
         res = {}
-        for name, func in fields.items():
-            try:
-                res[name] = func()
-            except (ValueError, IndexError) as e:
-                logger.error('parsing error {} ({}) for field {}'.format(e, self._url, name))
+        if self._html:
+            for name, func in fields.items():
+                try:
+                    res[name] = func()
+                except (ValueError, IndexError) as e:
+                    logger.error('parsing error {} ({}) for field {}'.format(e, self._url, name))
+        else:
+            res['id'] = self.get_id()
+
         return res
 
     def get_id(self):
