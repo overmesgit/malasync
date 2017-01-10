@@ -1,5 +1,6 @@
 import asyncio
 from datetime import datetime
+from typing import Dict, List
 
 from log import logger
 from models.anime import TitleModel
@@ -30,7 +31,7 @@ class AnimeTopSpider(AbstractAsyncSpider):
                 try:
                     existed_model = await objects.get(TitleModel, TitleModel.id == id)
                 except TitleModel.DoesNotExist:
-                    await objects.create(TitleModel, title=title, id=id, members_score=score)
+                    await objects.create(TitleModel, title=title, id=id, members_score=score, type='TV')
                 else:
                     existed_model.title = title
                     existed_model.score = score
@@ -38,6 +39,11 @@ class AnimeTopSpider(AbstractAsyncSpider):
 
 
 class AnimeSpider(AbstractAsyncSpider):
+    relation_rename = {
+        "alternative version": "alv",
+        "alternative setting": "als",
+    }
+
     def __init__(self, loop, limit):
         super().__init__(loop, limit)
         self.url_format = 'https://myanimelist.net/anime/{}'
@@ -62,14 +68,29 @@ class AnimeSpider(AbstractAsyncSpider):
     def parser(self, url, html):
         return AnimeParser(url, html).parse()
 
+    def flat_relations(self, relations: Dict[str, List[Dict[str, int]]]):
+        res = []
+        for rel_name, relations_list in relations.items():
+            rel_name = self.relation_rename.get(rel_name, rel_name)[:3]
+            for relation in relations_list:
+                res.append({'r': rel_name, 'i': relation['i'], 't': relation['t']})
+
+        return res
+
     async def save_result(self, parsed_data):
         fields = {
             'last_update': datetime.now(),
         }
         if len(parsed_data) > 1:
             air_from, air_to = parsed_data.get('aired_from_to', (None, None))
-            fields['aired_from'] = datetime.utcfromtimestamp(air_from) if air_from else None
-            fields['aired_to'] = datetime.utcfromtimestamp(air_to) if air_to else None
+            if air_from:
+                fields['aired_from'] = datetime.utcfromtimestamp(air_from)
+            if air_to:
+                fields['aired_to'] = datetime.utcfromtimestamp(air_to)
+
+            related = parsed_data.get('related')
+            if related:
+                fields['related'] = self.flat_relations(related)
 
             copy_fields = {'title', 'episodes', 'members_score', 'duration', 'synopsis', 'english', 'image', 'members',
                            'japanese', 'scores', 'favorites', 'genres', 'type', 'status', 'rating', 'producers'}
