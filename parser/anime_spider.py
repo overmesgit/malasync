@@ -1,6 +1,6 @@
 import asyncio
 from datetime import datetime
-from typing import Dict, List
+from typing import Dict, List, Any
 
 from log import logger
 from models.anime import TitleModel
@@ -49,16 +49,27 @@ class AnimeSpider(AbstractAsyncSpider):
         self.url_format = 'https://myanimelist.net/anime/{}'
         from async_db import objects
         self.objects = objects
+        self.processing_ids = set()
 
     async def get_next_url(self):
         from async_db import objects
-        query = TitleModel.select(TitleModel.id).where(TitleModel.last_update.is_null(True)).limit(1)
+        not_parsing = TitleModel.id.not_in(self.processing_ids)
+
+        select_where = TitleModel.select(TitleModel.id).where(TitleModel.last_update.is_null(True))
+        if self.processing_ids:
+            select_where = select_where.where(not_parsing)
+
+        query = select_where.limit(1)
         next_ids = (await objects.scalar(query, as_tuple=True))
         if not next_ids:
-            query = TitleModel.select(TitleModel.id).order_by(TitleModel.last_update).limit(1)
+            select_where = TitleModel.select(TitleModel.id)
+            if self.processing_ids:
+                select_where = select_where.where(not_parsing)
+            query = select_where.order_by(TitleModel.last_update).limit(1)
             next_ids = (await objects.scalar(query, as_tuple=True))
 
         if next_ids:
+            self.processing_ids.add(next_ids[0])
             return self.url_format.format(next_ids[0])
         else:
             logger.warn('anime not found')
@@ -77,7 +88,7 @@ class AnimeSpider(AbstractAsyncSpider):
 
         return res
 
-    async def save_result(self, parsed_data):
+    async def save_result(self, parsed_data: Dict[str, Any]):
         fields = {
             'last_update': datetime.now(),
         }
@@ -97,3 +108,4 @@ class AnimeSpider(AbstractAsyncSpider):
             fields.update({n: parsed_data[n] for n in copy_fields if n in parsed_data})
         update_query = TitleModel.update(**fields).where(TitleModel.id == parsed_data['id'])
         await self.objects.execute(update_query)
+        self.processing_ids.remove(int(parsed_data['id']))

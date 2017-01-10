@@ -109,7 +109,8 @@ class AnimeParser:
             return type_node.strip()
 
     def get_image(self):
-        return self._tree.xpath('//*[@id="content"]/table/tr/td[1]/div/div[1]/a/img')[0].attrib['src']
+        img = self._tree.xpath('//*[@id="content"]/table/tr/td[1]/div/div[1]/a/img')
+        return img[0].attrib['src'] if img else None
 
     def get_episodes(self):
         episodes = self._tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Episodes:"]')[0].tail.strip()
@@ -167,7 +168,7 @@ class AnimeParser:
         if not score:
             span = self._tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Score:"]/../span[2]/text()')
             score = span[0] if span else ''
-        return float(score)
+        return float(score) if score != 'N/A' else None
 
     def get_duration(self):
         duration_str = self._tree.xpath('//*[@id="content"]/table/tr/td[1]//span[text()="Duration:"]')[0].tail.strip()

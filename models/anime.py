@@ -8,7 +8,7 @@ class TitleModel(Model):
     id = IntegerField(index=True)
     type = CharField(index=True)
     title = CharField(index=True)
-    members_score = FloatField(index=True)
+    members_score = FloatField(null=True, index=True)
     last_update = DateTimeField(null=True, index=True)
 
     aired_from = DateTimeField(null=True, index=True)
