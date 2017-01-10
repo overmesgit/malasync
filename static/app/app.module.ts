@@ -4,6 +4,11 @@ import {FormsModule}   from '@angular/forms';
 import {HttpModule}    from "@angular/http";
 import {AppComponent}  from "./app.component";
 import {TitleService} from "./title.service";
+import {FieldService} from "./field.service";
+import {TitleTableComponent} from "./table.component";
+import {FieldComponent} from "./field.component";
+import './rxjs-extensions';
+
 
 @NgModule({
   imports: [
@@ -12,9 +17,11 @@ import {TitleService} from "./title.service";
     HttpModule,
   ],
   declarations: [
-    AppComponent
+    AppComponent,
+    TitleTableComponent,
+    FieldComponent
   ],
-  providers: [TitleService],
+  providers: [TitleService, FieldService],
   bootstrap: [AppComponent]
 })
 export class AppModule {

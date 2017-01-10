@@ -5,7 +5,7 @@ import {Title} from "./title";
 @Injectable()
 export class TitleService {
   private headers = new Headers({'Content-Type': 'application/json'});
-  private heroesUrl = 'api/title';
+  private heroesUrl = '/api/title';
   constructor(private http: Http) {
   }
 
