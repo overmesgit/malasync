@@ -27,7 +27,7 @@ class TitleModel(Model):
     scores = IntegerField(null=True, index=True)
     status = CharField(null=True, index=True)
     # synonyms
-    synopsis = TextField(null=True, index=True)
+    synopsis = TextField(null=True)
 
     class Meta:
         database = database
