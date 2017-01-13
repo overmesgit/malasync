@@ -8,10 +8,17 @@ import { Observable }        from 'rxjs/Observable';
   moduleId: module.id,
   selector: 'title-table',
   template: `
-    <table>
+    <table id="title-table" class="table table-striped table-bordered table-hover">
+      <thead>
+        <tr>
+          <td *ngFor="let field of fields | async" [style.display]="field.enable">{{field.name}}</td>
+        </tr>
+      </thead>
+      <tbody>
         <tr *ngFor="let title of titles | async">
             <td *ngFor="let field of fields | async" [style.display]="field.enable">{{title[field.name]}}</td>
         </tr>
+      </tbody>
     </table>
   `,
 })

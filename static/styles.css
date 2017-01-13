@@ -1,0 +1,19 @@
+title-table .table td {
+  padding: 1px;
+}
+
+pagination {
+  text-align: center;
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+.page-link {
+  width: 50px;
+}
+
+field-select .form-check-label {
+  width: 100%;
+}

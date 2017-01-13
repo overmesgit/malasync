@@ -7,7 +7,6 @@ let init_fields: Field[] = [
   new Field("type", true),
   new Field("title", true),
   new Field("members_score", true),
-  new Field("last_update", true),
   new Field("aired_from", true),
   new Field("aired_to", true),
   new Field("duration", false),
@@ -30,4 +29,6 @@ let init_fields: Field[] = [
 export class FieldService{
   public allFields = init_fields;
   public fieldsTerms = new BehaviorSubject<Field[]>(init_fields.filter(f => f.enable));
+  public currentPage = new BehaviorSubject(1);
+  public titlesCount = new BehaviorSubject(1);
 }

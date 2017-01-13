@@ -3,24 +3,37 @@ import {Headers, Http, Response, RequestOptions} from '@angular/http';
 import 'rxjs/add/operator/toPromise';
 import {Title} from "./title";
 import {FieldService} from "./field.service";
-import {Observable, BehaviorSubject} from "rxjs";
+import {Subject} from "rxjs/Subject";
 import {Field} from "./field";
+import Any = jasmine.Any;
+
 @Injectable()
 export class TitleService {
   private headers = new Headers({'Content-Type': 'application/json'});
   private heroesUrl = '/api/title';
-  public filteredTitles: Observable<Title[]>;
+  public filteredTitles = new Subject<Title[]>();
 
   constructor(private http: Http,
     private fieldService: FieldService) {
-    this.filteredTitles = this.fieldService.fieldsTerms.debounceTime(300)
+    this.fieldService.fieldsTerms.debounceTime(300)
       .distinctUntilChanged()
-      .switchMap(fields => this.fetch(fields));
+      .subscribe(fields => this.fetch(fields, this.fieldService.currentPage.getValue()));
+
+    this.fieldService.currentPage
+      .distinctUntilChanged()
+      .subscribe(page => this.fetch(this.fieldService.fieldsTerms.getValue(), page));
   }
 
-  fetch(fields: Field[]): Observable<Title[]> {
+  next(response: any): void {
+    this.filteredTitles.next(response.data as Title[]);
+    this.fieldService.titlesCount.next(response.meta.count);
+  }
+
+  fetch(fields: Field[], page: number): void {
     let options = new RequestOptions({ headers: this.headers });
-    return this.http.post(this.heroesUrl, {fields}, options).map((r: Response) => r.json().data as Title[])
+    this.http.post(this.heroesUrl, {fields, offset: (page-1)*100, limit: 100}, options).toPromise()
+      .then(response => this.next(response.json()))
+      .catch(this.handleError);
   }
 
   private handleError(error: any): Promise<any> {

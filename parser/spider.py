@@ -54,8 +54,8 @@ class AbstractAsyncSpider:
             return await self.get_next_url()
 
     async def _process_url(self, url):
-        with aiohttp.Timeout(30, loop=self._loop):
-            try:
+        try:
+            with aiohttp.Timeout(30, loop=self._loop):
                 async with self._session.get(url) as response:
                     logger.info('code: {}, url: {}'.format(response.status, url))
 
@@ -72,11 +72,12 @@ class AbstractAsyncSpider:
 
                         parsed_data = self.parser(url, html)
                         await self.results_queue.put(parsed_data)
-            except (asyncio.TimeoutError, aiohttp.ClientOSError) as ex:
-                logger.error("site not response")
-                self.stop_parsing()
-            finally:
-                self.processing_urls_queue.task_done()
+        except (asyncio.TimeoutError, aiohttp.ClientOSError) as ex:
+            logger.error("site not response")
+            self.stop_parsing()
+        finally:
+            self.processing_urls_queue.task_done()
+            if self.processing_urls_queue.qsize():
                 await self.processing_urls_queue.get()
 
     async def _save_results(self):

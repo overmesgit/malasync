@@ -6,4 +6,8 @@ export class Field {
     this.name = name;
     this.enable = enable;
   }
+
+  display(): string {
+    return this.name[0].toUpperCase() + this.name.slice(1)
+  }
 }

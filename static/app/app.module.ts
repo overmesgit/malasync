@@ -8,6 +8,8 @@ import {FieldService} from "./field.service";
 import {TitleTableComponent} from "./table.component";
 import {FieldComponent} from "./field.component";
 import './rxjs-extensions';
+import {PaginationComponent} from "./pagination.component";
+import { NouisliderComponent } from 'ng2-nouislider';
 
 
 @NgModule({
@@ -17,9 +19,11 @@ import './rxjs-extensions';
     HttpModule,
   ],
   declarations: [
+    NouisliderComponent,
     AppComponent,
     TitleTableComponent,
-    FieldComponent
+    FieldComponent,
+    PaginationComponent,
   ],
   providers: [TitleService, FieldService],
   bootstrap: [AppComponent]
