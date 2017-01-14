@@ -1,7 +1,6 @@
-import {Component, OnInit}          from '@angular/core';
-import {TitleService} from "./title.service";
+import {Component}          from '@angular/core';
+import {StateService} from "./state.service";
 import {Title} from "./title";
-import {FieldService} from "./field.service";
 import {Field} from "./field";
 import { Observable }        from 'rxjs/Observable';
 @Component({
@@ -11,12 +10,12 @@ import { Observable }        from 'rxjs/Observable';
     <table id="title-table" class="table table-striped table-bordered table-hover">
       <thead>
         <tr>
-          <td *ngFor="let field of fields | async" [style.display]="field.enable">{{field.name}}</td>
+          <td *ngFor="let field of fields | async" [style.display]="field.enable">{{field.shortName}}</td>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let title of titles | async">
-            <td *ngFor="let field of fields | async" [style.display]="field.enable">{{title[field.name]}}</td>
+            <td *ngFor="let field of fields | async" [style.display]="field.enable">{{title[field.field]}}</td>
         </tr>
       </tbody>
     </table>
@@ -27,10 +26,9 @@ export class TitleTableComponent {
   private fields: Observable<Field[]>;
 
   constructor(
-    private titleService: TitleService,
-    private fieldService: FieldService) {
-    this.titles = this.titleService.filteredTitles;
-    this.fields = this.fieldService.fieldsTerms;
+    private stateService: StateService) {
+    this.titles = this.stateService.filteredTitles;
+    this.fields = this.stateService.fieldsTerms;
   }
 
 }

@@ -17,3 +17,21 @@ pagination {
 field-select .form-check-label {
   width: 100%;
 }
+
+field-select .noUi-horizontal .noUi-handle {
+    width: 14px;
+    height: 14px;
+    left: -7px;
+    top: -6px;
+}
+
+field-select .noUi-horizontal {
+    height: 5px;
+}
+
+field-select .noUi-handle:before, field-select .noUi-handle:after {
+    height: 8px;
+    width: 1px;
+    left: 6px;
+    top: 2px;
+}

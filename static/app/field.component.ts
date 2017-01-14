@@ -1,45 +1,46 @@
 import {Component, OnInit}          from '@angular/core';
-import {FieldService} from "./field.service";
 import {Field} from "./field";
+import {StateService} from "./state.service";
 
 @Component({
   moduleId: module.id,
   selector: 'field-select',
   template: `
-    <nouislider [connect]="true" [config]="rangeConfig" [(ngModel)]="someRange" (ngModelChange)="onChanges($event)"></nouislider>
     <div class="field-select">
-        <div class="form-check" *ngFor="let field of fields">
-          <label class="form-check-label">
-            <input [(ngModel)]="field.enable" (ngModelChange)="onChanges($event)" class="form-check-input" type="checkbox" value="">
-            {{field.display()}}
-          </label>
+        <div *ngFor="let field of fields">
+          <div class="form-check">
+            <label class="form-check-label">
+              <input [(ngModel)]="field.enable" (ngModelChange)="onChanges($event)" class="form-check-input" type="checkbox" value="">
+              {{field.name}}
+            </label>
+          </div>
+          <nouislider *ngIf="field.field == 'id'" [connect]="true"
+           [config]="rangeConfig" [(ngModel)]="field.filter" (ngModelChange)="onChanges($event)"></nouislider>
         </div>
     </div>
   `,
 })
 export class FieldComponent implements OnInit{
   fields: Field[];
-  someRange = [5,10];
 
   rangeConfig: any = {
     connect: true,
     start: 1,
-    end: 10,
     range: {
       min: 0,
-      max: 20
+      max: 15000
     },
     step: 1
   };
 
   constructor(
-    private fieldService: FieldService) { }
+    private stateService: StateService) { }
 
   ngOnInit(): void {
-    this.fields = this.fieldService.allFields;
+    this.fields = this.stateService.allFields;
   }
 
   onChanges(): void {
-    this.fieldService.fieldsTerms.next(this.fields.filter(f => f.enable))
+    this.stateService.fieldsTerms.next(this.fields.filter(f => f.enable))
   }
 }

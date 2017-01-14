@@ -1,6 +1,6 @@
 import {Component}          from '@angular/core';
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
-import {FieldService} from "./field.service";
+import {StateService} from "./state.service";
 @Component({
   moduleId: module.id,
   selector: 'pagination',
@@ -15,19 +15,19 @@ import {FieldService} from "./field.service";
 })
 export class PaginationComponent{
   public shownPage = new BehaviorSubject([1]);
-  constructor(private fieldService: FieldService){
-    this.fieldService.titlesCount.distinctUntilChanged()
-      .subscribe(titlesCount => this.update(this.fieldService.currentPage.getValue(), titlesCount));
-    this.fieldService.currentPage.distinctUntilChanged()
-      .subscribe(page => this.update(page, this.fieldService.titlesCount.getValue()));
+  constructor(private stateService: StateService){
+    this.stateService.titlesCount.distinctUntilChanged()
+      .subscribe(titlesCount => this.update(this.stateService.currentPage.getValue(), titlesCount));
+    this.stateService.currentPage.distinctUntilChanged()
+      .subscribe(page => this.update(page, this.stateService.titlesCount.getValue()));
   };
 
   currentPage(): number {
-    return this.fieldService.currentPage.getValue();
+    return this.stateService.currentPage.getValue();
   }
 
   nextPage(page: number): void {
-    this.fieldService.currentPage.next(page);
+    this.stateService.currentPage.next(page);
   }
 
   update(page: number, titles: number): void {

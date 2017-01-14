@@ -16,11 +16,11 @@ async def index(request):
 
 
 def get_fields(obj, fields):
-    return {f['name']: getattr(obj, f['name'], None) for f in fields}
+    return {f['field']: getattr(obj, f['field'], None) for f in fields}
 
 async def title_api(request):
     body = await request.json()
-    fields = [getattr(TitleModel, f['name']) for f in body['fields']]
+    fields = [getattr(TitleModel, f['field']) for f in body['fields']]
     query = TitleModel.select(*fields)
     paged_query = query.order_by(TitleModel.members_score.desc()).offset(body['offset']).limit(body['limit'])
     data = await objects.execute(paged_query)
