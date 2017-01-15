@@ -69,12 +69,13 @@ class AbstractAsyncSpider:
                         except (RuntimeError, UnicodeDecodeError) as e:
                             logger.error(e)
                             html = None
-
+                        logger.info("parse")
                         parsed_data = self.parser(url, html)
+                        logger.info("save result")
                         await self.results_queue.put(parsed_data)
         except (asyncio.TimeoutError, aiohttp.ClientOSError) as ex:
-            logger.error("site not response")
-            self.stop_parsing()
+            logger.error("site not response: {}".format(str(ex)))
+            await asyncio.sleep(30)
         finally:
             self.processing_urls_queue.task_done()
             if self.processing_urls_queue.qsize():

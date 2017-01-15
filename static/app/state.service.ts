@@ -7,26 +7,26 @@ import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {Observable} from "rxjs/Observable";
 
 let init_fields: Field[] = [
-  new Field("id", "Id", "Id", true, [0, 15000]),
-  new Field("type", "Type", "Type", true, [0, 0]),
-  new Field("title", "Title", "Title", true, [0, 0]),
-  new Field("members_score", "Score", "Score", true, [0, 0]),
-  new Field("aired_from", "Aired From", "From", true, [0, 0]),
-  new Field("aired_to", "Aired To", "To", true, [0, 0]),
-  new Field("duration", "Duration", "Dur.", false, [0, 0]),
-  new Field("english", "English", "English", false, [0, 0]),
-  new Field("episodes", "Episodes", "Ep.", false, [0, 0]),
-  new Field("favorites", "Favorites", "Fav.", false, [0, 0]),
-  new Field("genres", "Genres", "Genres", true, [0, 0]),
-  new Field("image", "Image", "Image", false, [0, 0]),
-  new Field("japanese", "Japanese", "Japanese", false, [0, 0]),
-  new Field("members", "Members", "Members", true, [0, 0]),
-  new Field("related", "Related", "Related", true, [0, 0]),
-  new Field("producers", "Producers", "Producers", false, [0, 0]),
-  new Field("rating", "Rating", "Rating", true, [0, 0]),
-  new Field("scores", "Scores Count", "Scores", true, [0, 0]),
-  new Field("status", "Status", "Status", true, [0, 0]),
-  new Field("synopsis", "Synopsis", "Synopsis", false, [0, 0]),
+  new Field("id", "Id", "Id", true).withNumFilter(1, 90000, 1),
+  new Field("type", "Type", "Type", true),
+  new Field("title", "Title", "Title", true),
+  new Field("members_score", "Score", "Score", true).withNumFilter(1, 10, 0.1),
+  new Field("aired_from", "Aired From", "From", true),
+  new Field("aired_to", "Aired To", "To", true),
+  new Field("duration", "Duration", "Dur.", false).withNumFilter(1, 500, 1),
+  new Field("english", "English", "English", false),
+  new Field("episodes", "Episodes", "Ep.", false).withNumFilter(1, 3000, 1),
+  new Field("favorites", "Favorites", "Fav.", false).withNumFilter(1, 100000, 1),
+  new Field("genres", "Genres", "Genres", true),
+  new Field("image", "Image", "Image", false),
+  new Field("japanese", "Japanese", "Japanese", false),
+  new Field("members", "Members", "Members", true).withNumFilter(1, 500000, 1),
+  new Field("related", "Related", "Related", true),
+  new Field("producers", "Producers", "Producers", false),
+  new Field("rating", "Rating", "Rating", true),
+  new Field("scores", "Scores Count", "Scores", true).withNumFilter(1, 800000, 1),
+  new Field("status", "Status", "Status", true),
+  new Field("synopsis", "Synopsis", "Synopsis", false),
 ];
 
 @Injectable()
@@ -62,7 +62,7 @@ export class StateService {
     let query = {offset, limit};
     query['fields'] = [];
     for(let f of fields) {
-      query['fields'].push({'field': f.field, 'filter': f.filter})
+      query['fields'].push(f.getQuery())
     }
     return query;
   }

@@ -1,4 +1,4 @@
-import {Component, OnInit}          from '@angular/core';
+import {Component}          from '@angular/core';
 import {Field} from "./field";
 import {StateService} from "./state.service";
 
@@ -14,30 +14,41 @@ import {StateService} from "./state.service";
               {{field.name}}
             </label>
           </div>
-          <nouislider *ngIf="field.field == 'id'" [connect]="true"
-           [config]="rangeConfig" [(ngModel)]="field.filter" (ngModelChange)="onChanges($event)"></nouislider>
+          <div *ngIf="field.withFilter && field.filterType == 'range'" >
+            <!--<p>From: <input [(ngModel)]="field.numFilter[0]"/>To: <input [(ngModel)]="field.numFilter[1]"/></p>-->
+            <nouislider [connect]="true" [config]="filterConfigs[field.field]"
+             [(ngModel)]="field.numFilter" (ngModelChange)="onChanges($event)"></nouislider>
+          </div>
         </div>
     </div>
   `,
 })
-export class FieldComponent implements OnInit{
+export class FieldComponent{
   fields: Field[];
 
-  rangeConfig: any = {
-    connect: true,
-    start: 1,
-    range: {
-      min: 0,
-      max: 15000
-    },
-    step: 1
-  };
+  filterConfigs: any = {};
 
   constructor(
-    private stateService: StateService) { }
-
-  ngOnInit(): void {
+    private stateService: StateService) {
     this.fields = this.stateService.allFields;
+    for(let f of this.fields) {
+      if(f.withFilter && f.filterType == 'range') {
+        this.filterConfigs[f.field] = this.getRangeConfig(f.numFilterMin, f.numFilterMax, f.numFilterStep)
+      }
+    }
+  }
+
+  getRangeConfig(min: number, max: number, step: number): any {
+    return {
+      connect: true,
+      start: 1,
+      range: {
+        min: min,
+        max: max
+      },
+      step: step,
+      tooltips: [true, true]
+    };
   }
 
   onChanges(): void {

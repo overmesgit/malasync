@@ -11,7 +11,9 @@
     "test": "tsc && concurrently \"tsc -w\" \"karma start karma.conf.js\"",
     "test-once": "tsc && karma start karma.conf.js --single-run",
     "tsc": "tsc",
-    "tsc:w": "tsc -w"
+    "tsc:w": "tsc -w",
+    "build_prod": "npm run tsc && browserify -s main app/main.js > dist/bundle.js && npm run minify",
+    "minify": "uglifyjs dist/bundle.js --screw-ie8 --compress --mangle --output dist/bundle.min.js"
   },
   "keywords": [],
   "author": "",
@@ -27,6 +29,7 @@
     "@angular/router": "~3.3.0",
     "angular-in-memory-web-api": "~0.2.1",
     "bootstrap": "^4.0.0-alpha.5",
+    "browserify": "^13.3.0",
     "core-js": "^2.4.1",
     "http-proxy-middleware": "^0.17.3",
     "ng2-bootstrap": "^1.1.16-9",
@@ -35,6 +38,7 @@
     "reflect-metadata": "^0.1.8",
     "rxjs": "5.0.0-rc.4",
     "systemjs": "0.19.40",
+    "uglifyjs": "^2.4.10",
     "zone.js": "^0.7.2"
   },
   "devDependencies": {
