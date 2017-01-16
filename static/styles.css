@@ -45,3 +45,7 @@ field-select .field-select nouislider {
   margin-left: 5px;
   margin-right: 15px;
 }
+
+ng-select .btn {
+  padding: 0.1rem 0.1rem;
+}

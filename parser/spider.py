@@ -7,7 +7,7 @@ from log import logger
 
 class AbstractAsyncSpider:
     def __init__(self, loop, limit):
-        self.results_queue = asyncio.Queue(maxsize=300, loop=loop)
+        self.results_queue = asyncio.Queue(maxsize=5, loop=loop)
         self.processing_urls_queue = asyncio.Queue(maxsize=limit, loop=loop)
         self.retry_urls = asyncio.Queue(maxsize=100, loop=loop)
 
@@ -69,9 +69,7 @@ class AbstractAsyncSpider:
                         except (RuntimeError, UnicodeDecodeError) as e:
                             logger.error(e)
                             html = None
-                        logger.info("parse")
                         parsed_data = self.parser(url, html)
-                        logger.info("save result")
                         await self.results_queue.put(parsed_data)
         except (asyncio.TimeoutError, aiohttp.ClientOSError) as ex:
             logger.error("site not response: {}".format(str(ex)))
@@ -87,7 +85,11 @@ class AbstractAsyncSpider:
             if parsed_data is None:
                 break
             else:
-                await self.save_result(parsed_data)
+                try:
+                    await self.save_result(parsed_data)
+                except Exception as ex:
+                    logger.error("save exception: {}".format(ex))
+
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()

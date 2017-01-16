@@ -34,6 +34,8 @@ async def title_api(request):
                 if issubclass(type(model_field), (IntegerField, FloatField)):
                     filters.append(model_field >= f['filter'][0])
                     filters.append(model_field <= f['filter'][1])
+                elif f['field'] == 'type':
+                    filters.append(TitleModel.type.in_(f['filter']))
                 else:
                     return web.json_response({'error': f'{f} wrong filter'}, dumps=ujson.dumps)
 

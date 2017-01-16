@@ -6,9 +6,15 @@ import {Subject} from "rxjs/Subject";
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {Observable} from "rxjs/Observable";
 
-let init_fields: Field[] = [
+let typeValues = [ "TV", "Movie", "OVA", "Special",
+  "ONA", "Music", "Doujin",
+  "Manhwa", "Manhua", "Novel",
+  "One Shot", "Manga"
+];
+
+let initFields: Field[] = [
   new Field("id", "Id", "Id", true).withNumFilter(1, 90000, 1),
-  new Field("type", "Type", "Type", true),
+  new Field("type", "Type", "Type", true).withSelectFilter(typeValues),
   new Field("title", "Title", "Title", true),
   new Field("members_score", "Score", "Score", true).withNumFilter(1, 10, 0.1),
   new Field("aired_from", "Aired From", "From", true),
@@ -34,8 +40,8 @@ export class StateService {
   private headers = new Headers({'Content-Type': 'application/json'});
   private heroesUrl = '/api/title';
   public filteredTitles = new Subject<Title[]>();
-  public allFields = init_fields;
-  public fieldsTerms = new BehaviorSubject<Field[]>(init_fields.filter(f => f.enable));
+  public allFields = initFields;
+  public fieldsTerms = new BehaviorSubject<Field[]>(initFields.filter(f => f.enable));
   public currentPage = new BehaviorSubject(1);
   public titlesCount = new BehaviorSubject(1);
 

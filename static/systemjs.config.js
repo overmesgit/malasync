@@ -26,19 +26,16 @@
       // other libraries
       'rxjs':                      'npm:rxjs',
       'nouislider': 'npm:nouislider',
-      'ng2-nouislider': 'npm:ng2-nouislider'
+      'ng2-nouislider': 'npm:ng2-nouislider',
+      'ng2-select': 'node_modules/ng2-select'
     },
     // packages tells the System loader how to load when no filename and/or no extension
     packages: {
-      app: {
-        main: './main.js',
-        defaultExtension: 'js'
-      },
-      rxjs: {
-        defaultExtension: 'js'
-      },
+      app: { main: './main.js', defaultExtension: 'js'},
+      rxjs: { defaultExtension: 'js'},
       'nouislider': { main: 'distribute/nouislider.js', defaultExtension: 'js' },
-      'ng2-nouislider': { main: 'src/nouislider.js', defaultExtension: 'js' }
+      'ng2-nouislider': { main: 'src/nouislider.js', defaultExtension: 'js' },
+      'ng2-select': { defaultExtension: 'js', main: 'ng2-select.js'}
     }
   });
 })(this);

@@ -1,6 +1,7 @@
 import {Component}          from '@angular/core';
 import {Field} from "./field";
 import {StateService} from "./state.service";
+import { SelectComponent } from "ng2-select/ng2-select";
 
 @Component({
   moduleId: module.id,
@@ -19,6 +20,10 @@ import {StateService} from "./state.service";
             <nouislider [connect]="true" [config]="filterConfigs[field.field]"
              [(ngModel)]="field.numFilter" (ngModelChange)="onChanges($event)"></nouislider>
           </div>
+          <div *ngIf="field.withFilter && field.filterType == 'select'" >
+            <ng-select [multiple]="true" [items]="field.selectValues" (data)="onSelect($event, field)">
+            </ng-select>
+          </div>
         </div>
     </div>
   `,
@@ -36,6 +41,11 @@ export class FieldComponent{
         this.filterConfigs[f.field] = this.getRangeConfig(f.numFilterMin, f.numFilterMax, f.numFilterStep)
       }
     }
+  }
+
+  onSelect(selectedValues: any[], field: Field): void {
+    field.selectFilter = selectedValues.length ? selectedValues.map(v => v.id): null;
+    this.stateService.fieldsTerms.next(this.fields.filter(f => f.enable))
   }
 
   getRangeConfig(min: number, max: number, step: number): any {

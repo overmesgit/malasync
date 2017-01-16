@@ -9,6 +9,7 @@ import {FieldComponent} from "./field.component";
 import './rxjs-extensions';
 import {PaginationComponent} from "./pagination.component";
 import { NouisliderComponent } from 'ng2-nouislider';
+import {SelectModule} from 'ng2-select/ng2-select';
 
 
 @NgModule({
@@ -16,6 +17,7 @@ import { NouisliderComponent } from 'ng2-nouislider';
     BrowserModule,
     FormsModule,
     HttpModule,
+    SelectModule
   ],
   declarations: [
     NouisliderComponent,

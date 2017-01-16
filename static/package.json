@@ -34,6 +34,7 @@
     "http-proxy-middleware": "^0.17.3",
     "ng2-bootstrap": "^1.1.16-9",
     "ng2-nouislider": "^1.4.4",
+    "ng2-select": "^1.1.2",
     "nouislider": "^9.2.0",
     "reflect-metadata": "^0.1.8",
     "rxjs": "5.0.0-rc.4",

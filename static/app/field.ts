@@ -15,6 +15,9 @@ export class Field {
   numFilterStep: number;
   numFilter: [number, number];
 
+  selectValues: string[];
+  selectFilter: string[];
+
   constructor(field: string, name: string, shortName: string, enable: boolean) {
     this.field = field;
     this.name = name;
@@ -29,6 +32,9 @@ export class Field {
     let res = {'field': this.field};
     if (this.numFilter) {
       res['filter'] = this.numFilter;
+    }
+    if (this.selectFilter) {
+      res['filter'] = this.selectFilter;
     }
     return res;
   }
@@ -48,6 +54,13 @@ export class Field {
     if (init) {
       this.numFilter = init;
     }
+    return this;
+  }
+
+  withSelectFilter(values: string[]) {
+    this.withFilter = true;
+    this.filterType = 'select';
+    this.selectValues = values;
     return this;
   }
 }
