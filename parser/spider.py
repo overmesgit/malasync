@@ -67,10 +67,10 @@ class AbstractAsyncSpider:
                         try:
                             html = await response.text()
                         except (RuntimeError, UnicodeDecodeError) as e:
-                            logger.error(e)
-                            html = None
-                        parsed_data = self.parser(url, html)
-                        await self.results_queue.put(parsed_data)
+                            logger.error("get response error {}".format(e))
+                        else:
+                            parsed_data = self.parser(url, html)
+                            await self.results_queue.put(parsed_data)
         except (asyncio.TimeoutError, aiohttp.ClientOSError) as ex:
             logger.error("site not response: {}".format(str(ex)))
             await asyncio.sleep(30)

@@ -19,9 +19,7 @@ class AnimeTopSpider(AbstractAsyncSpider):
         return self.url_format.format(next(self.iterator))
 
     def parser(self, url, html):
-        parsed = AnimeTopParser(url, html).parse()
-        print(url, len(parsed))
-        return parsed
+        return AnimeTopParser(url, html).parse()
 
     async def save_result(self, parsed_data):
         from async_db import objects
