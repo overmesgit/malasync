@@ -1,5 +1,12 @@
-title-table .table td {
-  padding: 1px;
+title-table .table thead td {
+  padding: 0.25em;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+
+title-table .table tbody td {
+  padding: 0.25em;
 }
 
 pagination {

@@ -7,7 +7,7 @@ from log import logger
 
 class AbstractAsyncSpider:
     def __init__(self, loop, limit):
-        self.results_queue = asyncio.Queue(maxsize=5, loop=loop)
+        self.results_queue = asyncio.Queue(maxsize=100, loop=loop)
         self.processing_urls_queue = asyncio.Queue(maxsize=limit, loop=loop)
         self.retry_urls = asyncio.Queue(maxsize=100, loop=loop)
 

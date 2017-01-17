@@ -6,6 +6,9 @@ export class Field {
   field: string;
   enable: boolean;
 
+  withSort: boolean;
+  sort: string;
+
   withFilter: boolean;
   filterOn: boolean;
   filterType: string;
@@ -36,6 +39,9 @@ export class Field {
     if (this.selectFilter) {
       res['filter'] = this.selectFilter;
     }
+    if (this.sort) {
+      res['sort'] = this.sort;
+    }
     return res;
   }
 
@@ -57,10 +63,17 @@ export class Field {
     return this;
   }
 
-  withSelectFilter(values: string[]) {
+  withSelectFilter(values: string[]): Field {
     this.withFilter = true;
     this.filterType = 'select';
     this.selectValues = values;
+    return this;
+  }
+
+  withSorting(direction?: string): Field {
+    this.withSort = true;
+    this.sort = direction;
+
     return this;
   }
 }

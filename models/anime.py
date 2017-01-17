@@ -1,4 +1,4 @@
-from peewee import Model, CharField, FloatField, DateTimeField, IntegerField, TextField, CompositeKey
+from peewee import Model, CharField, FloatField, DateTimeField, IntegerField, TextField, CompositeKey, DateField
 from playhouse.postgres_ext import BinaryJSONField
 
 from db import database
@@ -11,8 +11,8 @@ class TitleModel(Model):
     members_score = FloatField(null=True, index=True)
     last_update = DateTimeField(null=True, index=True)
 
-    aired_from = DateTimeField(null=True, index=True)
-    aired_to = DateTimeField(null=True, index=True)
+    aired_from = DateField(null=True, index=True)
+    aired_to = DateField(null=True, index=True)
     duration = IntegerField(null=True, index=True)
     english = CharField(null=True, index=True)
     episodes = IntegerField(null=True, index=True)
