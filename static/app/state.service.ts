@@ -33,6 +33,7 @@ let initFields: Field[] = [
   new Field("scores", "Scores Count", "Scores", true).withSorting().withNumFilter(1, 800000, 1),
   new Field("status", "Status", "Status", true),
   new Field("synopsis", "Synopsis", "Synopsis", false),
+  new Field("userscore__score", "User Score", "UserScore", true).withSorting().withNumFilter(0, 10, 1),
 ];
 
 @Injectable()

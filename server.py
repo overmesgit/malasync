@@ -4,7 +4,7 @@ from aiohttp import web
 import asyncio
 
 from parser.anime_spider import AnimeTopSpider, AnimeSpider
-from views import index, title_api
+from views import index, title_api, get_user_scores
 
 app = web.Application()
 aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader('static'))
@@ -19,6 +19,7 @@ asyncio.ensure_future(anime_updater.start_parser())
 
 app.router.add_get('/', index)
 app.router.add_post('/api/title', title_api)
+app.router.add_get('/api/get-user-scores', get_user_scores)
 app.router.add_static('/static/', path='static', name='static')
 
 web.run_app(app, port=8002)

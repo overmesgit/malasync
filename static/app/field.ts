@@ -56,7 +56,6 @@ export class Field {
       this.numFilterStep = step;
     }
 
-    this.numFilter = [min, max];
     if (init) {
       this.numFilter = init;
     }

@@ -17,8 +17,8 @@ import { SelectComponent } from "ng2-select/ng2-select";
           </div>
           <div *ngIf="field.withFilter && field.filterType == 'range'" >
             <!--<p>From: <input [(ngModel)]="field.numFilter[0]"/>To: <input [(ngModel)]="field.numFilter[1]"/></p>-->
-            <nouislider [connect]="true" [config]="filterConfigs[field.field]"
-             [(ngModel)]="field.numFilter" (ngModelChange)="onChanges($event)"></nouislider>
+            <!--<nouislider [connect]="true" [config]="filterConfigs[field.field]"-->
+             <!--[(ngModel)]="field.numFilter" (ngModelChange)="onChanges($event)"></nouislider>-->
           </div>
           <div *ngIf="field.withFilter && field.filterType == 'select'" >
             <ng-select [multiple]="true" [items]="field.selectValues" (data)="onSelect($event, field)">

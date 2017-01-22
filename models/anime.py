@@ -1,4 +1,5 @@
-from peewee import Model, CharField, FloatField, DateTimeField, IntegerField, TextField, CompositeKey, DateField
+from peewee import Model, CharField, FloatField, DateTimeField, IntegerField, TextField, CompositeKey, DateField, \
+    ForeignKeyField
 from playhouse.postgres_ext import BinaryJSONField
 
 from db import database
@@ -31,4 +32,21 @@ class TitleModel(Model):
 
     class Meta:
         database = database
-        primary_key = CompositeKey('id', 'type')
+
+
+class User(Model):
+    name = CharField(index=True)
+
+    class Meta:
+        database = database
+
+
+class UserScore(Model):
+    title = ForeignKeyField(TitleModel)
+    user = ForeignKeyField(User)
+    score = IntegerField(index=True)
+    last_update = DateTimeField(index=True)
+    status = CharField(index=True)
+
+    class Meta:
+        database = database
