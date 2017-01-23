@@ -29,11 +29,13 @@ import {BehaviorSubject, Subject} from "rxjs";
 export class TitleTableComponent {
   private titles: Subject<Title[]>;
   private fields: BehaviorSubject<Field[]>;
+  private query: BehaviorSubject<Field[]>;
 
   constructor(
     private stateService: StateService) {
     this.titles = this.stateService.filteredTitles;
     this.fields = this.stateService.fieldsTerms;
+    this.query = this.stateService.queryTerms;
   }
 
   changeSorting(field: Field): void {
@@ -48,13 +50,13 @@ export class TitleTableComponent {
           field.sort = null;
         }
       }
-      let next = this.fields.getValue();
+      let next = this.query.getValue();
       for (let f of next) {
         if (f != field) {
           f.sort = null;
         }
       }
-      this.fields.next(next);
+      this.query.next(next);
     }
   }
 

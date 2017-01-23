@@ -58,15 +58,24 @@ def get_sort_and_filters(body_fields):
         if not model_field:
             raise Exception({'error': f'{f} not exists'})
         else:
-            fields.append(model_field if not alias else model_field.alias(alias))
+            if f.get('enable'):
+                fields.append(model_field if not alias else model_field.alias(alias))
+
             if 'filter' in f:
                 if issubclass(type(model_field), (IntegerField, FloatField)):
-                    filters.append(model_field >= f['filter'][0])
-                    filters.append(model_field <= f['filter'][1])
+                    field_filter = (model_field >= f['filter'][0]) & (model_field <= f['filter'][1])
                 elif field_name == 'type':
-                    filters.append(TitleModel.type.in_(f['filter']))
+                    field_filter = TitleModel.type.in_(f['filter'])
                 else:
                     raise ValueError(message=f'{f} wrong filter')
+
+                if f.get('exclude'):
+                    field_filter = ~field_filter
+
+                if f.get('orNull'):
+                    field_filter |= model_field.is_null(True)
+
+                filters.append(field_filter)
 
         if 'sort' in f:
             sorting = model_field if f['sort'] == 'asc' else model_field.desc()

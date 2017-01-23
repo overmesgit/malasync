@@ -7,9 +7,9 @@ from log import logger
 
 class AbstractAsyncSpider:
     def __init__(self, loop, limit):
-        self.results_queue = asyncio.Queue(maxsize=100, loop=loop)
+        self.results_queue = asyncio.Queue(maxsize=10, loop=loop)
         self.processing_urls_queue = asyncio.Queue(maxsize=limit, loop=loop)
-        self.retry_urls = asyncio.Queue(maxsize=100, loop=loop)
+        self.retry_urls = asyncio.Queue(maxsize=10, loop=loop)
 
         self._loop = loop
         self._conn = aiohttp.TCPConnector(limit=limit)
@@ -21,7 +21,7 @@ class AbstractAsyncSpider:
     async def get_next_url(self):
         return 'http://ya.ru/'
 
-    def parser(self, url, html):
+    def parser(self, url, status, html):
         return url, html[:100]
 
     async def save_result(self, data):
@@ -69,7 +69,7 @@ class AbstractAsyncSpider:
                         except (RuntimeError, UnicodeDecodeError) as e:
                             logger.error("get response error {}".format(e))
                         else:
-                            parsed_data = self.parser(url, html)
+                            parsed_data = self.parser(url, response.status, html)
                             await self.results_queue.put(parsed_data)
         except (asyncio.TimeoutError, aiohttp.ClientOSError) as ex:
             logger.error("site not response: {}".format(str(ex)))

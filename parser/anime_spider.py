@@ -1,5 +1,6 @@
 import asyncio
 from datetime import datetime
+from http import HTTPStatus
 from typing import Dict, List, Any
 
 from log import logger
@@ -18,7 +19,7 @@ class AnimeTopSpider(AbstractAsyncSpider):
     async def get_next_url(self):
         return self.url_format.format(next(self.iterator))
 
-    def parser(self, url, html):
+    def parser(self, url, status, html):
         return AnimeTopParser(url, html).parse()
 
     async def save_result(self, parsed_data):
@@ -76,8 +77,11 @@ class AnimeSpider(AbstractAsyncSpider):
             await asyncio.sleep(5)
             return await self.get_next_url()
 
-    def parser(self, url, html):
-        return AnimeParser(url, html).parse()
+    def parser(self, url, status, html):
+        if status == HTTPStatus.NOT_FOUND:
+            return {'errors': 'not_found', 'id': int(url.split('/')[-1])}
+        else:
+            return AnimeParser(url, html).parse()
 
     def flat_relations(self, relations: Dict[str, List[Dict[str, int]]]):
         res = []
@@ -89,6 +93,11 @@ class AnimeSpider(AbstractAsyncSpider):
         return res
 
     async def save_result(self, parsed_data: Dict[str, Any]):
+        if parsed_data.get('errors') == 'not_found':
+            query = TitleModel.delete().where(TitleModel.id == parsed_data['id'])
+            logger.warn(f'delete {parsed_data["id"]}')
+            await self.objects.execute(query)
+
         fields = {
             'last_update': datetime.now(),
         }

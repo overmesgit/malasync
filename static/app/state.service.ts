@@ -43,11 +43,12 @@ export class StateService {
   public filteredTitles = new Subject<Title[]>();
   public allFields = initFields;
   public fieldsTerms = new BehaviorSubject<Field[]>(initFields.filter(f => f.enable));
+  public queryTerms = new BehaviorSubject<Field[]>(initFields);
   public currentPage = new BehaviorSubject(1);
   public titlesCount = new BehaviorSubject(1);
 
   constructor(private http: Http) {
-    Observable.combineLatest(this.fieldsTerms.debounceTime(300), this.currentPage, (v1, v2) => [v1, v2])
+    Observable.combineLatest(this.queryTerms.debounceTime(300), this.currentPage, (v1, v2) => [v1, v2])
       .distinctUntilChanged().subscribe(values => this.fetch(values[0] as Field[], values[1] as number));
   }
 

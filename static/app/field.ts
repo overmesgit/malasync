@@ -12,6 +12,8 @@ export class Field {
   withFilter: boolean;
   filterOn: boolean;
   filterType: string;
+  exclude: boolean;
+  orNull: boolean;
 
   numFilterMax: number;
   numFilterMin: number;
@@ -32,12 +34,16 @@ export class Field {
   }
 
   getQuery(): any {
-    let res = {'field': this.field};
-    if (this.numFilter) {
-      res['filter'] = this.numFilter;
-    }
-    if (this.selectFilter) {
-      res['filter'] = this.selectFilter;
+    let res = {'field': this.field, 'enable': this.enable};
+    if (this.filterOn) {
+      res['exclude'] = this.exclude;
+      res['orNull'] = this.orNull;
+      if (this.numFilter) {
+        res['filter'] = this.numFilter;
+      }
+      if (this.selectFilter) {
+        res['filter'] = this.selectFilter;
+      }
     }
     if (this.sort) {
       res['sort'] = this.sort;
@@ -56,6 +62,7 @@ export class Field {
       this.numFilterStep = step;
     }
 
+    this.numFilter = [min, max];
     if (init) {
       this.numFilter = init;
     }
