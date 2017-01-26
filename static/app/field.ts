@@ -23,6 +23,8 @@ export class Field {
   selectValues: string[];
   selectFilter: string[];
 
+  userName: string;
+
   constructor(field: string, name: string, shortName: string, enable: boolean) {
     this.field = field;
     this.name = name;
@@ -47,6 +49,9 @@ export class Field {
     }
     if (this.sort) {
       res['sort'] = this.sort;
+    }
+    if (this.userName) {
+      res['userName'] = this.userName;
     }
     return res;
   }
@@ -80,6 +85,11 @@ export class Field {
     this.withSort = true;
     this.sort = direction;
 
+    return this;
+  }
+
+  withUser(userName: string): Field {
+    this.userName = userName;
     return this;
   }
 }

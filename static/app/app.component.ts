@@ -5,7 +5,10 @@ import {Component}          from '@angular/core';
   template: `
     <div class="container-fluid" style="margin: 20px">
       <div class="row">
-        <div class="col-sm-2"><field-select></field-select></div>
+        <div class="col-sm-2">
+            <field-select></field-select>
+            <user-select></user-select>
+        </div>
         <div class="col-sm-10">
             <pagination></pagination>
             <div class="row">

@@ -1,3 +1,5 @@
+from http import HTTPStatus
+
 import aiohttp
 import aiohttp_jinja2
 import ujson
@@ -20,19 +22,26 @@ async def index(request):
 main_url = 'http://myanimelist.net'
 main_api_url = '/malappinfo.php?u={0}&status={1}&type={2}'
 async def get_user_scores(request):
-    async with aiohttp.ClientSession() as session:
-        user_name = 'overmes'
-        url = main_url + (main_api_url.format(user_name, 'all', 'anime'))
-        async with session.get(url) as resp:
-            print(resp.status)
-            text = await resp.read()
-            user_id, scores, dict_len, scores_len = UserParser(html=text).get_list()
-            await objects.create_or_get(User, id=user_id, name=user_name)
-            delete_query = UserScore.delete().where(UserScore.user == user_id)
-            await objects.execute(delete_query)
-            insert_query = UserScore.insert_many(scores)
-            await objects.execute(insert_query)
-            return web.json_response({'status': 'ok'}, dumps=ujson.dumps)
+    body = await request.json()
+
+    try:
+        user_name = body['userName']
+        async with aiohttp.ClientSession() as session:
+            url = main_url + (main_api_url.format(user_name, 'all', 'anime'))
+            async with session.get(url) as resp:
+                if resp.status != HTTPStatus.OK:
+                    raise ValueError('MAL response status {}'.format(resp.status))
+
+                text = await resp.read()
+                user_id, scores, dict_len, scores_len = UserParser(html=text).get_list()
+                await objects.create_or_get(User, id=user_id, name=user_name)
+                delete_query = UserScore.delete().where(UserScore.user == user_id)
+                await objects.execute(delete_query)
+                insert_query = UserScore.insert_many(scores)
+                await objects.execute(insert_query)
+                return web.json_response({'status': 'ok'}, dumps=ujson.dumps)
+    except Exception as ex:
+        return web.json_response({'status': 'error', 'error': ex}, status=500, dumps=ujson.dumps)
 
 
 # def get_fields(obj, fields):
@@ -42,17 +51,19 @@ async def get_user_scores(request):
 def get_sort_and_filters(body_fields):
     fields = []
     filters = []
-    join = []
+    join = set()
     sorting = None
+    user_name = None
     for f in body_fields:
         field_model = TitleModel
         field_name = f['field']
-        alias = None
+        alias = ''
         if field_name.startswith('userscore__'):
             alias = field_name
             field_name = field_name.split('__')[1]
-            join.append(UserScore)
+            join.add(UserScore)
             field_model = UserScore
+            user_name = f['userName']
 
         model_field = getattr(field_model, field_name, None)
         if not model_field:
@@ -64,8 +75,8 @@ def get_sort_and_filters(body_fields):
             if 'filter' in f:
                 if issubclass(type(model_field), (IntegerField, FloatField)):
                     field_filter = (model_field >= f['filter'][0]) & (model_field <= f['filter'][1])
-                elif field_name == 'type':
-                    field_filter = TitleModel.type.in_(f['filter'])
+                elif field_name == 'type' or alias == 'userscore__status':
+                    field_filter = model_field.in_(f['filter'])
                 else:
                     raise ValueError(message=f'{f} wrong filter')
 
@@ -79,15 +90,16 @@ def get_sort_and_filters(body_fields):
 
         if 'sort' in f:
             sorting = model_field if f['sort'] == 'asc' else model_field.desc()
-    return join, fields, filters, sorting
+    return join, user_name, fields, filters, sorting
 
 async def title_api(request):
     body = await request.json()
 
-    join, fields, filters, sorting = get_sort_and_filters(body['fields'])
+    join, user_name, fields, filters, sorting = get_sort_and_filters(body['fields'])
     query = TitleModel.select(*fields)
     if join:
-        query = query.join(*join, JOIN.LEFT_OUTER)
+        user = await objects.get(User, name=user_name)
+        query = query.join(*join, JOIN.LEFT_OUTER).where((UserScore.user == user.id) | UserScore.user.is_null(True))
     if filters:
         query = query.where(*filters)
     if sorting:

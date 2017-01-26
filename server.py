@@ -19,7 +19,7 @@ asyncio.ensure_future(anime_updater.start_parser())
 
 app.router.add_get('/', index)
 app.router.add_post('/api/title', title_api)
-app.router.add_get('/api/get-user-scores', get_user_scores)
+app.router.add_post('/api/get-user-scores', get_user_scores)
 app.router.add_static('/static/', path='static', name='static')
 
 web.run_app(app, port=8002)

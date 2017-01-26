@@ -32,7 +32,11 @@ class UserParser:
         if error_list:
             raise ValueError(error_list)
 
-        user_id = int(tree.xpath('//myanimelist/myinfo/user_id/text()')[0])
+        user_node = tree.xpath('//myanimelist/myinfo/user_id/text()')
+        if not user_node:
+            raise ValueError('User not found')
+
+        user_id = int(user_node[0])
 
         xml_list = tree.xpath('//anime')
         title_types = 'anime'

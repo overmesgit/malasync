@@ -10,6 +10,8 @@ import './rxjs-extensions';
 import {PaginationComponent} from "./pagination.component";
 import { NouisliderComponent } from 'ng2-nouislider';
 import {SelectModule} from 'ng2-select/ng2-select';
+import {UserSelectComponent} from "./user.component";
+import {FilterComponent} from "./filter.component";
 
 
 @NgModule({
@@ -25,6 +27,8 @@ import {SelectModule} from 'ng2-select/ng2-select';
     TitleTableComponent,
     FieldComponent,
     PaginationComponent,
+    UserSelectComponent,
+    FilterComponent
   ],
   providers: [StateService],
   bootstrap: [AppComponent]
