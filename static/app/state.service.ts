@@ -9,7 +9,7 @@ import {Observable} from "rxjs/Observable";
 let typeValues = [ "TV", "Movie", "OVA", "Special",
   "ONA", "Music", "Doujin",
   "Manhwa", "Manhua", "Novel",
-  "One Shot", "Manga"
+  "One-shot", "Manga"
 ];
 
 let initFields: Field[] = [

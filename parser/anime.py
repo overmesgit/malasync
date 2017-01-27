@@ -10,6 +10,7 @@ from log import logger
 
 
 class AnimeParser:
+
     def __init__(self, url, html):
         self._url = url
         self._html = html
@@ -17,35 +18,36 @@ class AnimeParser:
             self._pq = pq(html)
             self._tree = lxml.html.fromstring(html)
 
+        self.fields = {
+            'aired_from_to': self.get_aired_from_to,
+            'duration': self.get_duration,
+            'episodes': self.get_episodes,
+            'english': self.get_english,
+            'favorites': self.get_favorites,
+            'image': self.get_image,
+            'id': self.get_id,
+            'genres': self.get_genres,
+            'japanese': self.get_japanese,
+            'members': self.get_members,
+            'members_score': self.get_score,
+            'producers': self.get_producers,
+            'related': self.get_related,
+            'rating': self.get_rating,
+            'synopsis': self.get_synopsis,
+            'status': self.get_status,
+            'synonyms': self.get_synonyms,
+            'scores': self.get_scored,
+            'title': self.get_title,
+            'type': self.get_type,
+        }
+
     def parse(self):
         return self.get_all_fields_dict()
 
     def get_all_fields_dict(self):
-        fields = {
-            'title': self.get_title,
-            'type': self.get_type,
-            'episodes': self.get_episodes,
-            'related': self.get_related,
-            'status': self.get_status,
-            'genres': self.get_genres,
-            'rating': self.get_rating,
-            'members_score': self.get_score,
-            'aired_from_to': self.get_aired_from_to,
-            'duration': self.get_duration,
-            'synopsis': self.get_synopsis,
-            'english': self.get_english,
-            'image': self.get_image,
-            'members': self.get_members,
-            'japanese': self.get_japanese,
-            'synonyms': self.get_synonyms,
-            'scores': self.get_scored,
-            'producers': self.get_producers,
-            'favorites': self.get_favorites,
-            'id': self.get_id
-        }
         res = {}
         if self._html:
-            for name, func in fields.items():
+            for name, func in self.fields.items():
                 try:
                     res[name] = func()
                 except (ValueError, IndexError) as e:
@@ -56,7 +58,7 @@ class AnimeParser:
         return res
 
     def get_id(self):
-        return self._url.split('/')[-1]
+        return int(self._url.split('/')[-1])
 
     def get_aired_from_to(self):
         aired_from_to = self.get_aired()

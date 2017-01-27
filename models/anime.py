@@ -14,6 +14,8 @@ class TitleModel(Model):
 
     aired_from = DateField(null=True, index=True)
     aired_to = DateField(null=True, index=True)
+    authors = BinaryJSONField(null=True, index=True)
+    chapters = IntegerField(null=True, index=True)
     duration = IntegerField(null=True, index=True)
     english = CharField(null=True, index=True)
     episodes = IntegerField(null=True, index=True)
@@ -27,8 +29,10 @@ class TitleModel(Model):
     rating = CharField(null=True, index=True)
     scores = IntegerField(null=True, index=True)
     status = CharField(null=True, index=True)
+    serialization = BinaryJSONField(null=True, index=True)
     # synonyms
     synopsis = TextField(null=True)
+    volumes = IntegerField(null=True, index=True)
 
     class Meta:
         database = database
