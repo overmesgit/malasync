@@ -20,7 +20,7 @@ import {BehaviorSubject, Subject} from "rxjs";
       </thead>
       <tbody>
         <tr *ngFor="let title of titles | async">
-            <td *ngFor="let field of fields | async" >{{title[field.field]}}</td>
+            <td *ngFor="let field of fields | async" >{{showField(field, title[field.field])}}</td>
         </tr>
       </tbody>
     </table>
@@ -36,6 +36,21 @@ export class TitleTableComponent {
     this.titles = this.stateService.filteredTitles;
     this.fields = this.stateService.fieldsTerms;
     this.query = this.stateService.queryTerms;
+  }
+
+  showField(field: Field, value: any): any {
+    if (!value) {
+      return value;
+    }
+
+    switch (field.field) {
+      case 'id':
+        let id = parseInt(value, 10);
+        return id > 1000000 ? id - 1000000: id;
+      case 'genres':
+        return value.join(', ')
+    }
+    return value;
   }
 
   changeSorting(field: Field): void {

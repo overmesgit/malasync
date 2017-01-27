@@ -81,7 +81,7 @@ class AnimeSpider(AbstractAsyncSpider):
         self.objects = objects
         self.processing_ids = set()
         self.anime_types = ["TV", "Movie", "OVA", "Special", "ONA", "Music"]
-        self. manga_types = ["Doujin", "Manhwa", "Manhua", "Novel", "One-shot", "Manga"]
+        self. manga_types = ["Doujinshi", "Manhwa", "Manhua", "Novel", "One-shot", "Manga"]
 
     async def get_next_url(self):
         from async_db import objects

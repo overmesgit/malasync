@@ -7,7 +7,7 @@ import {BehaviorSubject} from "rxjs/BehaviorSubject";
 import {Observable} from "rxjs/Observable";
 
 let typeValues = [ "TV", "Movie", "OVA", "Special",
-  "ONA", "Music", "Doujin",
+  "ONA", "Music", "Doujinshi",
   "Manhwa", "Manhua", "Novel",
   "One-shot", "Manga"
 ];
