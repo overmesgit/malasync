@@ -81,3 +81,15 @@ field-select .field-select nouislider {
 ng-select .btn {
   padding: 0.1rem 0.1rem;
 }
+
+.small-img {
+  width: 75px;
+}
+
+.big-img {
+  width: 150px;
+}
+
+field-select .field-settings label{
+  padding-left: 1rem;
+}

@@ -29,7 +29,7 @@ import {Http, Headers} from "@angular/http";
           </div>
           <div *ngIf="userName" class="row">
             <div class="col-sm-8">
-                <button *ngIf="!loading" type="submit" class="btn btn-primary" (click)="getUserScores($event)" >Update {{userName}} scores</button>
+                <button *ngIf="!loading" type="submit" class="btn btn-primary" (click)="getUserScores($event)" >Reload scores</button>
                 <button *ngIf="loading" type="submit" class="btn btn-primary disabled" >Loading</button>
             </div>
           </div>

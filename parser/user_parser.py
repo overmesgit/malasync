@@ -2,6 +2,8 @@ from datetime import datetime
 
 from lxml import etree
 
+from parser.anime_spider import MANGA_ID_OFFSET
+
 
 class UserParser:
     type_converter = {
@@ -13,8 +15,9 @@ class UserParser:
         6: 'Music'
     }
 
-    def __init__(self, html):
+    def __init__(self, html, title_type):
         self._html = html
+        self._title_type = title_type
 
     def get_user_name(self):
         username_regex = etree.fromstring(self._html).xpath("//a[re:match(text(), '<title>(.*?)\'s(.*)</title>')]")
@@ -38,22 +41,23 @@ class UserParser:
 
         user_id = int(user_node[0])
 
-        xml_list = tree.xpath('//anime')
-        title_types = 'anime'
-        if not xml_list:
+        if self._title_type == 'anime':
+            xml_list = tree.xpath('//anime')
+        else:
             xml_list = tree.xpath('//manga')
-            title_types = 'manga'
 
         dict_len = len(xml_list)
         scores_len = 0
         for xml_node in xml_list:
-            id = int(xml_node.xpath('series_' + title_types + 'db_id/text()')[0])
+            id = int(xml_node.xpath('series_' + self._title_type + 'db_id/text()')[0])
             status = int(xml_node.xpath('my_status/text()')[0])
             score = int(xml_node.xpath('my_score/text()')[0])
             scores_len = scores_len + 1 if score else scores_len
             time = int(xml_node.xpath('my_last_updated/text()')[0])
             date = datetime.fromtimestamp(time)
             int_type = int(xml_node.xpath('series_type/text()')[0])
+            if self._title_type == 'manga':
+                id += MANGA_ID_OFFSET
             result.append({'title': id, 'score': score, 'status': status,
                            'last_update': date, 'user': user_id})
         return user_id, result, dict_len, scores_len

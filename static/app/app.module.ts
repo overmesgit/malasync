@@ -12,6 +12,7 @@ import { NouisliderComponent } from 'ng2-nouislider';
 import {SelectModule} from 'ng2-select/ng2-select';
 import {UserSelectComponent} from "./user.component";
 import {FilterComponent} from "./filter.component";
+import {DndModule} from "ng2-dnd";
 
 
 @NgModule({
@@ -19,7 +20,8 @@ import {FilterComponent} from "./filter.component";
     BrowserModule,
     FormsModule,
     HttpModule,
-    SelectModule
+    SelectModule,
+    DndModule.forRoot()
   ],
   declarations: [
     NouisliderComponent,

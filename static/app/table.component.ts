@@ -20,7 +20,11 @@ import {BehaviorSubject, Subject} from "rxjs";
       </thead>
       <tbody>
         <tr *ngFor="let title of titles | async">
-            <td *ngFor="let field of fields | async" >{{showField(field, title[field.field])}}</td>
+            <td *ngFor="let field of fields | async" [ngSwitch]="field.field">
+                <img *ngSwitchCase="'image'" [class.small-img]="field.small" [class.big-img]="!field.small"
+                 src="{{showField(field, title[field.field])}}" />
+                <span *ngSwitchDefault>{{showField(field, title[field.field])}}</span>
+            </td>
         </tr>
       </tbody>
     </table>
@@ -48,7 +52,9 @@ export class TitleTableComponent {
         let id = parseInt(value, 10);
         return id > 1000000 ? id - 1000000: id;
       case 'genres':
-        return value.join(', ')
+        return value.join(', ');
+      case 'authors':
+        return value.join(', ');
     }
     return value;
   }

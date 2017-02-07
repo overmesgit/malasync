@@ -12,8 +12,8 @@ import {SelectComponent} from "ng2-select/ng2-select";
         Fields
       </div>
       <div class="card-block">
-        <ul class="list-group list-group-flush">
-          <li class="list-group-item" *ngFor="let field of fields">
+        <ul class="list-group list-group-flush" dnd-sortable-container [sortableData]="fields">
+          <li class="list-group-item" *ngFor="let field of fields; let i = index" dnd-sortable [sortableIndex]="i" (onDropSuccess)="onDrop($event)">
               <div class="form-check row">
                 <div class="col-sm-8">
                     <label class="form-check-label">
@@ -21,8 +21,12 @@ import {SelectComponent} from "ng2-select/ng2-select";
                         {{field.userName}} {{field.name}}
                     </label>
                 </div>
-                <div *ngIf="field.withFilter" class="col-sm-4">
-                   <label class="form-check-label col-sm-1">
+                <div class="col-sm-4 field-settings">
+                  <label *ngIf="field.field == 'image'" class="form-check-label col-sm-1">
+                    <input [(ngModel)]="field.small" class="form-check-input" type="checkbox" value="">
+                    Small
+                  </label>
+                  <label *ngIf="field.withFilter" class="form-check-label col-sm-1">
                     <input [(ngModel)]="field.filterOn" (ngModelChange)="onChanges($event)" class="form-check-input" type="checkbox" value="">
                     Filter
                   </label>
@@ -42,10 +46,8 @@ export class FieldComponent {
     this.fields = this.stateService.allFields;
   }
 
-  onSelect(selectedValues: any[], field: Field): void {
-    field.selectFilter = selectedValues.length ? selectedValues.map(v => v.id) : null;
+  onDrop(): void {
     this.stateService.fieldsTerms.next(this.fields.filter(f => f.enable));
-    this.stateService.queryTerms.next(this.fields);
   }
 
   getRangeConfig(field: Field): any {
