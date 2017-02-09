@@ -1,4 +1,4 @@
-import { Injectable }    from '@angular/core';
+import {Injectable}    from '@angular/core';
 import {Headers, Http, RequestOptions} from '@angular/http';
 import {Title} from "./title";
 import {Field} from "./field";
@@ -40,7 +40,7 @@ let initFields: Field[] = [
 ];
 
 @Injectable()
-export class StateService {
+export class StateService{
   private headers = new Headers({'Content-Type': 'application/json'});
   private heroesUrl = '/api/title';
   public filteredTitles = new Subject<Title[]>();
@@ -49,15 +49,50 @@ export class StateService {
   public queryTerms = new BehaviorSubject<Field[]>(initFields);
   public currentPage = new BehaviorSubject(1);
   public titlesCount = new BehaviorSubject(1);
+  private localStorage = localStorage;
+  private limit = 100;
 
   constructor(private http: Http) {
+    if (!('version' in this.localStorage)) {
+      this.localStorage['version'] = 1;
+    }
+
+    if ('page' in this.localStorage) {
+      this.currentPage = new BehaviorSubject(parseInt(this.localStorage['page'], 10));
+    }
+
+    if ('fields' in this.localStorage) {
+      let stored = JSON.parse(this.localStorage['fields']);
+      this.allFields.splice(0, this.allFields.length);
+      for (let f of stored) {
+        let d = new Field('', '', '', false);
+        for (let prop in f) d[prop] = f[prop];
+        this.allFields.push(d);
+      }
+      this.queryTerms.next(this.allFields);
+      this.fieldsTerms.next(this.allFields.filter(f => f.enable));
+    }
+
     Observable.combineLatest(this.queryTerms.debounceTime(300), this.currentPage, (v1, v2) => [v1, v2])
       .distinctUntilChanged().subscribe(values => this.fetch(values[0] as Field[], values[1] as number));
+    this.currentPage.subscribe(value => this.updatePageHistory(value as number));
+    this.fieldsTerms.subscribe(value => this.updateFieldsHistory(value as Field[]));
+  }
+
+  updatePageHistory(page: number): void {
+    this.localStorage['page'] = page;
+  }
+
+  updateFieldsHistory(enabledFields: Field[]) {
+    this.localStorage['fields'] = JSON.stringify(this.allFields);
   }
 
   next(response: any): void {
     this.filteredTitles.next(response.data as Title[]);
     this.titlesCount.next(response.meta.count);
+    if (response.meta.count < this.limit*(this.currentPage.getValue() - 1 )) {
+      this.currentPage.next(1);
+    }
   }
 
   fetch(fields: Field[], page: number): void {
@@ -68,7 +103,7 @@ export class StateService {
   }
 
   getQuery(fields: Field[], page: number): any {
-    let limit = 100;
+    let limit = this.limit;
     let offset = (page-1)*limit;
     let query = {offset, limit};
     query['fields'] = [];

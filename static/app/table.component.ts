@@ -73,11 +73,14 @@ export class TitleTableComponent {
       }
       let next = this.query.getValue();
       for (let f of next) {
-        if (f != field) {
+        if (f.field != field.field) {
           f.sort = null;
+        } else {
+          f.sort = field.sort;
         }
       }
       this.query.next(next);
+      this.fields.next(next.filter(f => f.enable));
     }
   }
 

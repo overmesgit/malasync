@@ -31,7 +31,7 @@ import {SelectComponent} from "ng2-select/ng2-select";
                 [(ngModel)]="field.numFilter" (ngModelChange)="onChanges($event)"></nouislider>
             </div>
             <div *ngIf="field.filterType == 'select'" >
-              <ng-select [multiple]="true" [items]="field.selectValues" (data)="onSelect($event, field)">
+              <ng-select [multiple]="true" [items]="field.selectValues" [active]="field.selectFilter" (data)="onSelect($event, field)">
               </ng-select>
           </div>
           </div>
