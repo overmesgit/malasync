@@ -13,6 +13,7 @@ import {SelectModule} from 'ng2-select/ng2-select';
 import {UserSelectComponent} from "./user.component";
 import {FilterComponent} from "./filter.component";
 import {DndModule} from "ng2-dnd";
+import { MyDateRangePickerModule } from 'mydaterangepicker';
 
 
 @NgModule({
@@ -21,7 +22,8 @@ import {DndModule} from "ng2-dnd";
     FormsModule,
     HttpModule,
     SelectModule,
-    DndModule.forRoot()
+    DndModule.forRoot(),
+    MyDateRangePickerModule
   ],
   declarations: [
     NouisliderComponent,

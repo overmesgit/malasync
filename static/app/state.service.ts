@@ -12,20 +12,27 @@ let typeValues = [ "TV", "Movie", "OVA", "Special",
   "One-shot", "Manga"
 ];
 
+let genres = ['Action', 'Adventure', 'Cars', 'Comedy', 'Dementia', 'Demons', 'Doujinshi', 'Drama',
+              'Ecchi', 'Fantasy', 'Game', 'Gender Bender', 'Harem', 'Hentai', 'Historical', 'Horror', 'Josei', 'Kids',
+              'Magic', 'Martial Arts', 'Mecha', 'Military', 'Music', 'Mystery', 'Parody', 'Police', 'Psychological',
+              'Romance', 'Samurai', 'School', 'Sci-Fi', 'Seinen', 'Shoujo', 'Shoujo Ai', 'Shounen', 'Shounen Ai',
+              'Slice of Life', 'Space', 'Sports', 'Super Power', 'Supernatural', 'Thriller', 'Vampire', 'Yaoi', 'Yuri'
+];
+
 let initFields: Field[] = [
   new Field("id", "Id", "Id", true).withSorting().withNumFilter(1, 90000, 1),
   new Field("type", "Type", "Type", true).withSelectFilter(typeValues),
   new Field("title", "Title", "Title", true),
   new Field("members_score", "Score", "Score", true).withSorting().withNumFilter(1, 10, 0.1),
-  new Field("aired_from", "Aired From", "From", true).withSorting(),
-  new Field("aired_to", "Aired To", "To", true).withSorting(),
+  new Field("aired_from", "Aired From", "From", true).withSorting().withDateFilter(),
+  new Field("aired_to", "Aired To", "To", true).withSorting().withDateFilter(),
   new Field("duration", "Duration", "Dur.", false).withSorting().withNumFilter(1, 500, 1),
   new Field("chapters", "Chapters", "Chapters", false).withSorting().withNumFilter(1, 15000, 1),
   new Field("volumes", "Volumes", "Volumes", false).withSorting().withNumFilter(1, 500, 1),
   new Field("english", "English", "English", false),
   new Field("episodes", "Episodes", "Ep.", false).withSorting().withNumFilter(1, 3000, 1),
   new Field("favorites", "Favorites", "Fav.", false).withNumFilter(1, 100000, 1),
-  new Field("genres", "Genres", "Genres", true),
+  new Field("genres", "Genres", "Genres", true).withSelectFilter(genres),
   new Field("image", "Image", "Image", false),
   new Field("japanese", "Japanese", "Japanese", false),
   new Field("members", "Members", "Members", true).withSorting().withNumFilter(1, 500000, 1),

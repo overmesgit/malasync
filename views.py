@@ -1,10 +1,11 @@
+from datetime import datetime
 from http import HTTPStatus
 
 import aiohttp
 import aiohttp_jinja2
 import ujson
 from aiohttp import web
-from peewee import FloatField, JOIN
+from peewee import FloatField, JOIN, DateTimeField, DateField
 
 from playhouse.shortcuts import model_to_dict, IntegerField
 
@@ -78,10 +79,16 @@ def get_sort_and_filters(body_fields):
                 fields.append(model_field if not alias else model_field.alias(alias))
 
             if 'filter' in f:
-                if issubclass(type(model_field), (IntegerField, FloatField)):
+                if isinstance(model_field, (IntegerField, FloatField)):
                     field_filter = (model_field >= f['filter'][0]) & (model_field <= f['filter'][1])
+                elif isinstance(model_field, (DateTimeField, DateField)):
+                    start_date = datetime.fromtimestamp(f['filter'][0])
+                    end_date = datetime.fromtimestamp(f['filter'][1])
+                    field_filter = (start_date < model_field) & (model_field < end_date)
                 elif field_name == 'type' or alias == 'userscore__status':
                     field_filter = model_field.in_(f['filter'])
+                elif field_name == 'genres':
+                    field_filter = None
                 else:
                     raise ValueError(message=f'{f} wrong filter')
 

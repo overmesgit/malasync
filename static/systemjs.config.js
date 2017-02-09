@@ -28,7 +28,9 @@
       'nouislider': 'npm:nouislider',
       'ng2-nouislider': 'npm:ng2-nouislider',
       'ng2-select': 'node_modules/ng2-select',
-      'ng2-dnd': 'node_modules/ng2-dnd/bundles/index.umd.js'
+      'ng2-dnd': 'node_modules/ng2-dnd/bundles/index.umd.js',
+      'mydatepicker': 'node_modules/mydatepicker/bundles/mydatepicker.umd.js',
+      'mydaterangepicker': 'node_modules/mydaterangepicker/bundles/mydaterangepicker.umd.js'
     },
     // packages tells the System loader how to load when no filename and/or no extension
     packages: {

@@ -1,4 +1,4 @@
-
+import { IMyDateRangeModel } from 'mydaterangepicker';
 
 export class Field {
   name: string;
@@ -24,6 +24,8 @@ export class Field {
   selectValues: string[];
   selectFilter: string[];
 
+  dateFilter: IMyDateRangeModel;
+
   userName: string;
 
   constructor(field: string, name: string, shortName: string, enable: boolean) {
@@ -47,6 +49,9 @@ export class Field {
       }
       if (this.selectFilter) {
         res['filter'] = this.selectFilter;
+      }
+      if (this.dateFilter) {
+        res['filter'] = [this.dateFilter.beginEpoc, this.dateFilter.endEpoc]
       }
     }
     if (this.sort) {
@@ -80,6 +85,12 @@ export class Field {
     this.withFilter = true;
     this.filterType = 'select';
     this.selectValues = values;
+    return this;
+  }
+
+  withDateFilter(): Field {
+    this.withFilter = true;
+    this.filterType = 'date';
     return this;
   }
 

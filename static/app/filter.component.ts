@@ -2,6 +2,7 @@ import {Component}          from '@angular/core';
 import {Field} from "./field";
 import {StateService} from "./state.service";
 import {SelectComponent} from "ng2-select/ng2-select";
+import {IMyOptions} from "mydatepicker";
 
 @Component({
   moduleId: module.id,
@@ -33,7 +34,11 @@ import {SelectComponent} from "ng2-select/ng2-select";
             <div *ngIf="field.filterType == 'select'" >
               <ng-select [multiple]="true" [items]="field.selectValues" [active]="field.selectFilter" (data)="onSelect($event, field)">
               </ng-select>
-          </div>
+            </div>
+            <div *ngIf="field.filterType == 'date'" >
+                <my-date-range-picker [options]="dateOptions" (dateRangeChanged)="onChanges($event)"
+                    [(ngModel)]="field.dateFilter"></my-date-range-picker>
+            </div>
           </div>
       </div>
     </div>
@@ -42,6 +47,12 @@ import {SelectComponent} from "ng2-select/ng2-select";
 export class FilterComponent {
   fields: Field[];
   field: Field;
+
+  private dateOptions: IMyOptions = {
+      dateFormat: 'dd.mm.yyyy',
+      width: '95%',
+      selectionTxtFontSize: '14px'
+  };
 
   constructor(private stateService: StateService) {
     this.fields = this.stateService.allFields;
@@ -67,6 +78,7 @@ export class FilterComponent {
   }
 
   onChanges(): void {
+    console.log(this.fields);
     this.stateService.fieldsTerms.next(this.fields.filter(f => f.enable));
     this.stateService.queryTerms.next(this.fields);
   }

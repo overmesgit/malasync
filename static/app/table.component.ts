@@ -55,6 +55,10 @@ export class TitleTableComponent {
         return value.join(', ');
       case 'authors':
         return value.join(', ');
+      case 'producers':
+        return value.join(', ');
+      case 'serialization':
+        return value.join(', ');
     }
     return value;
   }
