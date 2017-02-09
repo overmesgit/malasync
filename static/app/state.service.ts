@@ -19,6 +19,8 @@ let genres = ['Action', 'Adventure', 'Cars', 'Comedy', 'Dementia', 'Demons', 'Do
               'Slice of Life', 'Space', 'Sports', 'Super Power', 'Supernatural', 'Thriller', 'Vampire', 'Yaoi', 'Yuri'
 ];
 
+let statuses = ["Not yet aired", "Currently Airing", "Finished Airing", "Not yet published", "Publishing", "Finished"];
+
 let initFields: Field[] = [
   new Field("id", "Id", "Id", true).withSorting().withNumFilter(1, 90000, 1),
   new Field("type", "Type", "Type", true).withSelectFilter(typeValues),
@@ -42,7 +44,7 @@ let initFields: Field[] = [
   new Field("serialization", "Serialization", "Serialization", false),
   new Field("rating", "Rating", "Rating", true),
   new Field("scores", "Scores Count", "Scores", true).withSorting().withNumFilter(1, 800000, 1),
-  new Field("status", "Status", "Status", true),
+  new Field("status", "Status", "Status", true).withSelectFilter(statuses),
   new Field("synopsis", "Synopsis", "Synopsis", false),
 ];
 

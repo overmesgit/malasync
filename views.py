@@ -86,7 +86,7 @@ def get_sort_and_filters(body_fields):
                     start_date = datetime.fromtimestamp(filter_[0])
                     end_date = datetime.fromtimestamp(filter_[1])
                     field_filter = (start_date < model_field) & (model_field < end_date)
-                elif field_name == 'type' or alias == 'userscore__status':
+                elif field_name == 'type' or alias == 'userscore__status' or field_name == 'status':
                     field_filter = model_field.in_(filter_)
                 elif field_name == 'genres':
                     field_filter = model_field.contains_all(filter_)
