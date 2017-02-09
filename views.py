@@ -79,16 +79,17 @@ def get_sort_and_filters(body_fields):
                 fields.append(model_field if not alias else model_field.alias(alias))
 
             if 'filter' in f:
+                filter_ = f['filter']
                 if isinstance(model_field, (IntegerField, FloatField)):
-                    field_filter = (model_field >= f['filter'][0]) & (model_field <= f['filter'][1])
+                    field_filter = (model_field >= filter_[0]) & (model_field <= filter_[1])
                 elif isinstance(model_field, (DateTimeField, DateField)):
-                    start_date = datetime.fromtimestamp(f['filter'][0])
-                    end_date = datetime.fromtimestamp(f['filter'][1])
+                    start_date = datetime.fromtimestamp(filter_[0])
+                    end_date = datetime.fromtimestamp(filter_[1])
                     field_filter = (start_date < model_field) & (model_field < end_date)
                 elif field_name == 'type' or alias == 'userscore__status':
-                    field_filter = model_field.in_(f['filter'])
+                    field_filter = model_field.in_(filter_)
                 elif field_name == 'genres':
-                    field_filter = None
+                    field_filter = model_field.contains_all(filter_)
                 else:
                     raise ValueError(message=f'{f} wrong filter')
 
