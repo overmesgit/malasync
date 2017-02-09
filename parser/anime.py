@@ -186,7 +186,7 @@ class AnimeParser:
     def get_synopsis(self):
         description = self._pq('[itemprop="description"]').text()
         description = description or self._pq('h2:contains("Synopsis")')[0].tail
-        if 'No synopsis information has been added to this title' in description:
+        if description and 'No synopsis information has been added to this title' in description:
             description = ''
         return description
 
