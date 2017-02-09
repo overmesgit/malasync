@@ -27,6 +27,7 @@ async def get_user_scores(request):
     try:
         user_name = body['userName']
         async with aiohttp.ClientSession() as session:
+            user_id, full_scores = None, []
             for title_type in ['anime', 'manga']:
                 url = main_url + (main_api_url.format(user_name, 'all', title_type))
                 async with session.get(url) as resp:
@@ -35,11 +36,14 @@ async def get_user_scores(request):
 
                     text = await resp.read()
                     user_id, scores, dict_len, scores_len = UserParser(html=text, title_type=title_type).get_list()
-                    await objects.create_or_get(User, id=user_id, name=user_name)
-                    delete_query = UserScore.delete().where(UserScore.user == user_id)
-                    await objects.execute(delete_query)
-                    insert_query = UserScore.insert_many(scores)
-                    await objects.execute(insert_query)
+                    full_scores.extend(scores)
+
+            if user_id:
+                await objects.create_or_get(User, id=user_id, name=user_name)
+                delete_query = UserScore.delete().where(UserScore.user == user_id)
+                await objects.execute(delete_query)
+                insert_query = UserScore.insert_many(full_scores)
+                await objects.execute(insert_query)
         return web.json_response({'status': 'ok'}, dumps=ujson.dumps)
     except Exception as ex:
         return web.json_response({'status': 'error', 'error': ex}, status=500, dumps=ujson.dumps)

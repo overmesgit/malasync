@@ -75,7 +75,7 @@ export class UserSelectComponent {
 
     let hasFields = false;
     for (let f of this.stateService.allFields) {
-      if (f.userName && f.userName != this.userName) {
+      if (f.userName && (f.userName != this.userName || f.userName == this.userName)) {
         f.userName = this.userName;
         hasFields = true;
       }

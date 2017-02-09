@@ -21,7 +21,7 @@ import {BehaviorSubject, Subject} from "rxjs";
       <tbody>
         <tr *ngFor="let title of titles | async">
             <td *ngFor="let field of fields | async" [ngSwitch]="field.field">
-                <img *ngSwitchCase="'image'" [class.small-img]="field.small" [class.big-img]="!field.small"
+                <img *ngSwitchCase="'image'" [class.small-img]="!field.big" [class.big-img]="field.big"
                  src="{{showField(field, title[field.field])}}" />
                 <span *ngSwitchDefault>{{showField(field, title[field.field])}}</span>
             </td>

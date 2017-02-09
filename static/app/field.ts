@@ -5,7 +5,7 @@ export class Field {
   shortName: string;
   field: string;
   enable: boolean;
-  small: boolean;
+  big: boolean;
 
   withSort: boolean;
   sort: string;
@@ -31,7 +31,7 @@ export class Field {
     this.name = name;
     this.shortName = shortName;
     this.enable = enable;
-    this.small = true;
+    this.big = false;
 
     this.withFilter = false;
     this.filterOn = false;
