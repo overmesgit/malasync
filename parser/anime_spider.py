@@ -29,8 +29,7 @@ class AnimeTopSpider(AbstractAsyncSpider):
     async def save_result(self, parsed_data: List[Tuple[int, str, float]]):
         from async_db import objects
         if not parsed_data:
-            await asyncio.sleep(120)
-            self.iterator = iter(range(0, 100000, 50))
+            self.stop_parsing()
         else:
             for title_data in parsed_data:
                 id, title, score = title_data
@@ -52,8 +51,7 @@ class MangaTopSpider(AnimeTopSpider):
     async def save_result(self, parsed_data: List[Tuple[int, str, float]]):
         from async_db import objects
         if not parsed_data:
-            await asyncio.sleep(26 * 3600)
-            self.iterator = iter(range(0, 100000, 50))
+            self.stop_parsing()
         else:
             for title_data in parsed_data:
                 id, title, score = title_data

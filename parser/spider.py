@@ -27,6 +27,12 @@ class AbstractAsyncSpider:
     async def save_result(self, data):
         print(data)
 
+    async def endless_parser(self, seconds_offset):
+        while True:
+            await self.start_parser()
+            await asyncio.sleep(seconds_offset)
+            self.__init__(self._loop, self._limit)
+
     async def start_parser(self):
         parser_task = asyncio.ensure_future(self._page_parser())
         saver_task = asyncio.ensure_future(self._save_results())

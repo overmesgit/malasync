@@ -76,6 +76,7 @@ export class Field {
 
     this.numFilter = [min, max];
     if (init) {
+      this.filterOn = true;
       this.numFilter = init;
     }
     return this;

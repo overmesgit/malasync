@@ -11,10 +11,10 @@ app = web.Application(loop=loop)
 aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader('static'))
 
 anime_top_updater = AnimeTopSpider(app.loop, 1)
-asyncio.ensure_future(anime_top_updater.start_parser())
+asyncio.ensure_future(anime_top_updater.endless_parser(24*3600))
 
 manga_top_updater = MangaTopSpider(app.loop, 1)
-asyncio.ensure_future(manga_top_updater.start_parser())
+asyncio.ensure_future(manga_top_updater.endless_parser(24*3600))
 
 anime_updater = AnimeMangaSpider(app.loop, 1)
 asyncio.ensure_future(anime_updater.start_parser())
