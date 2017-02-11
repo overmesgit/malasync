@@ -46,12 +46,12 @@ export class Field {
       res['orNull'] = this.orNull;
       if (this.numFilter) {
         res['filter'] = this.numFilter;
-      }
-      if (this.selectFilter) {
+      } else if (this.selectFilter) {
         res['filter'] = this.selectFilter;
-      }
-      if (this.dateFilter) {
+      } else if (this.dateFilter) {
         res['filter'] = [this.dateFilter.beginEpoc, this.dateFilter.endEpoc]
+      } else {
+        res['filter'] = null;
       }
     }
     if (this.sort) {

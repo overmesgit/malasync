@@ -69,9 +69,9 @@ export class UserSelectComponent {
   setUser(userName: string): void {
     this.userName = userName;
 
-    let score = new Field("userscore__score", "score", "UserScore", true).withSorting().withNumFilter(0, 10, 1).withUser(this.userName);
-    let status = new Field("userscore__status", "status", "UserStatus", true).withSorting().withNumFilter(0, 10, 1).withUser(this.userName);
-    let date = new Field("userscore__last_update", "date", "UserDate", true).withSorting().withUser(this.userName);
+    let score = new Field("userscore__score", "Score", "UserScore", true).withSorting().withNumFilter(0, 10, 1).withUser(this.userName);
+    let status = new Field("userscore__status", "Status", "UserStatus", true).withSorting().withNumFilter(0, 10, 1).withUser(this.userName);
+    let date = new Field("userscore__last_update", "Date", "UserDate", true).withSorting().withDateFilter().withUser(this.userName);
 
     let hasFields = false;
     for (let f of this.stateService.allFields) {

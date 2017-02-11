@@ -59,6 +59,11 @@ export class TitleTableComponent {
         return value.join(', ');
       case 'serialization':
         return value.join(', ');
+      case 'aired_from':
+      case 'aired_to':
+        return new Date(value).toLocaleString().split(',')[0];
+      case 'userscore__last_update':
+        return new Date(value*1000).toLocaleString().split(',')[0]
     }
     return value;
   }

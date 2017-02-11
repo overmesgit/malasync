@@ -7,7 +7,7 @@ import ujson
 from aiohttp import web
 from peewee import FloatField, JOIN, DateTimeField, DateField
 
-from playhouse.shortcuts import model_to_dict, IntegerField
+from playhouse.shortcuts import model_to_dict, IntegerField, SQL, Clause
 
 from async_db import objects
 from models.anime import TitleModel, User, UserScore
@@ -83,9 +83,12 @@ def get_sort_and_filters(body_fields):
                 if isinstance(model_field, (IntegerField, FloatField)):
                     field_filter = (model_field >= filter_[0]) & (model_field <= filter_[1])
                 elif isinstance(model_field, (DateTimeField, DateField)):
-                    start_date = datetime.fromtimestamp(filter_[0])
-                    end_date = datetime.fromtimestamp(filter_[1])
-                    field_filter = (start_date < model_field) & (model_field < end_date)
+                    if filter_:
+                        start_date = datetime.fromtimestamp(filter_[0])
+                        end_date = datetime.fromtimestamp(filter_[1])
+                        field_filter = (start_date < model_field) & (model_field < end_date)
+                    else:
+                        field_filter = model_field.is_null(False)
                 elif field_name == 'type' or alias == 'userscore__status' or field_name == 'status':
                     field_filter = model_field.in_(filter_)
                 elif field_name == 'genres':
@@ -116,8 +119,10 @@ async def title_api(request):
     if filters:
         query = query.where(*filters)
     if sorting:
-        query = query.order_by(sorting)
-
+        if sorting._ordering == 'DESC':
+            query = query.order_by(Clause(sorting, SQL('NULLS LAST')))
+        else:
+            query = query.order_by(Clause(sorting, SQL('NULLS FIRST')))
     paged_query = query.offset(body['offset']).limit(body['limit'])
     data = await objects.execute(paged_query.dicts())
     count = await objects.count(query)
