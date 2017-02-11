@@ -10,7 +10,6 @@ from parser.manga import MangaParser
 from parser.spider import AbstractAsyncSpider
 from parser.top import AnimeTopParser
 
-
 MANGA_ID_OFFSET = 1000000
 
 
@@ -71,6 +70,16 @@ class AnimeMangaSpider(AbstractAsyncSpider):
     relation_rename = {
         "alternative version": "alv",
         "alternative setting": "als",
+        "adaptation": "ada",
+        "character": "cha",
+        "full story": "ful",
+        "other": "oth",
+        "prequel": "pre",
+        "parent story": "par",
+        "sequel": "seq",
+        "spin-off": "spi",
+        "side story": "sid",
+        "summary": "sum",
     }
 
     def __init__(self, loop, limit):
@@ -81,7 +90,7 @@ class AnimeMangaSpider(AbstractAsyncSpider):
         self.objects = objects
         self.processing_ids = set()
         self.anime_types = ["TV", "Movie", "OVA", "Special", "ONA", "Music"]
-        self. manga_types = ["Doujinshi", "Manhwa", "Manhua", "Novel", "One-shot", "Manga"]
+        self.manga_types = ["Doujinshi", "Manhwa", "Manhua", "Novel", "One-shot", "Manga"]
 
     async def get_next_url(self):
         from async_db import objects
@@ -125,7 +134,7 @@ class AnimeMangaSpider(AbstractAsyncSpider):
     def flat_relations(self, relations: Dict[str, List[Dict[str, int]]]):
         res = []
         for rel_name, relations_list in relations.items():
-            rel_name = self.relation_rename.get(rel_name, rel_name)[:3]
+            rel_name = self.relation_rename.get(rel_name, rel_name)
             for relation in relations_list:
                 rel_id = relation['i'] if relation['t'] == 'anime' else relation['i'] + MANGA_ID_OFFSET
                 res.append({'r': rel_name, 'i': rel_id, 't': relation['t']})

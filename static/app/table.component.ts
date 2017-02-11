@@ -23,8 +23,13 @@ import {BehaviorSubject, Subject} from "rxjs";
             <td *ngFor="let field of fields | async" [ngSwitch]="field.field">
                 <img *ngSwitchCase="'image'" [class.small-img]="!field.big" [class.big-img]="field.big"
                  src="{{showField(field, title[field.field])}}" />
-                <a *ngSwitchCase="'title'" target="_blank" href="{{getTitleUrl(title)}}">
+                <a *ngSwitchCase="'title'" target="_blank" href="{{title.getTitleUrl()}}">
                     {{showField(field, title[field.field])}}</a>
+                <div *ngSwitchCase="'related'">
+                    <div *ngFor="let relType of title.getRelationsTypes()">{{title.getRelationName(relType)}}: 
+                        <a *ngFor="let rel of title.getRelationsByType(relType); let isLast=last" href="{{rel.getRelationUrl()}}" target="_blank">{{rel.title}}{{isLast ? '' : ', '}}</a>
+                    </div>
+                </div>
                 <span *ngSwitchDefault>{{showField(field, title[field.field])}}</span>
             </td>
         </tr>
@@ -40,6 +45,7 @@ export class TitleTableComponent {
     '4': 'Dropped',
     '6': 'Plan',
   };
+
   private titles: Subject<Title[]>;
   private fields: BehaviorSubject<Field[]>;
   private query: BehaviorSubject<Field[]>;
@@ -51,15 +57,6 @@ export class TitleTableComponent {
     this.query = this.stateService.queryTerms;
   }
 
-  getTitleUrl(title: Title) {
-    let id = title.id;
-    if (title.id > 1000000) {
-      id -= 1000000;
-      return `https://myanimelist.net/manga/${id}`
-    } else {
-      return `https://myanimelist.net/anime/${id}`
-    }
-  }
 
   showField(field: Field, value: any): any {
     if (value == null) {
@@ -80,7 +77,7 @@ export class TitleTableComponent {
         return value.join(', ');
       case 'aired_from':
       case 'aired_to':
-        return new Date(value).toLocaleString().split(',')[0];
+        return new Date(value*1000).toLocaleString().split(',')[0];
       case 'userscore__last_update':
         return new Date(value*1000).toLocaleString().split(',')[0];
       case 'userscore__score':

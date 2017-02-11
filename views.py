@@ -7,12 +7,11 @@ import ujson
 from aiohttp import web
 from peewee import FloatField, JOIN, DateTimeField, DateField
 
-from playhouse.shortcuts import model_to_dict, IntegerField, SQL, Clause
+from playhouse.shortcuts import IntegerField, SQL, Clause
 
 from async_db import objects
 from models.anime import TitleModel, User, UserScore
 from parser.user_parser import UserParser
-from utils import format_dates, compress_json
 
 
 @aiohttp_jinja2.template('index-aio.html')
@@ -68,10 +67,13 @@ def get_sort_and_filters(body_fields):
     join = set()
     sorting = None
     user_name = None
+    related = False
     for f in body_fields:
         field_model = TitleModel
         field_name = f['field']
         alias = ''
+        if field_name == 'related':
+            related = True
         if field_name.startswith('userscore__'):
             alias = field_name
             field_name = field_name.split('__')[1]
@@ -119,12 +121,12 @@ def get_sort_and_filters(body_fields):
 
         if 'sort' in f:
             sorting = model_field if f['sort'] == 'asc' else model_field.desc()
-    return join, user_name, fields, filters, sorting
+    return join, user_name, fields, filters, sorting, related
 
 async def title_api(request):
     body = await request.json()
 
-    join, user_name, fields, filters, sorting = get_sort_and_filters(body['fields'])
+    join, user_name, fields, filters, sorting, related = get_sort_and_filters(body['fields'])
     query = TitleModel.select(*fields)
     if join:
         user = await objects.get(User, name=user_name)
@@ -138,6 +140,15 @@ async def title_api(request):
             query = query.order_by(Clause(sorting, SQL('NULLS FIRST')))
     paged_query = query.offset(body['offset']).limit(body['limit'])
     data = await objects.execute(paged_query.dicts())
+    if related:
+        all_related_ids = {r['i'] for row in data for r in row.get('related') or [] if r}
+        rel_query = TitleModel.select(TitleModel.title, TitleModel.id).where(TitleModel.id.in_(all_related_ids))
+        all_rel_titles = await objects.execute(rel_query.dicts())
+        rel_id_to_title = {r['id']: r['title'] for r in all_rel_titles}
+        for row in data:
+            for rel in row.get('related') or []:
+                rel['title'] = rel_id_to_title.get(rel['i'], 'Unknown')
+
     count = await objects.count(query)
-    resp_data = {'meta': {'count': count}, 'data': [format_dates(d) for d in data]}
+    resp_data = {'meta': {'count': count}, 'data': data}
     return web.json_response(resp_data, dumps=ujson.dumps)

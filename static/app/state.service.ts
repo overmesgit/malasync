@@ -1,6 +1,6 @@
 import {Injectable}    from '@angular/core';
 import {Headers, Http, RequestOptions} from '@angular/http';
-import {Title} from "./title";
+import {Title, Related} from "./title";
 import {Field} from "./field";
 import {Subject} from "rxjs/Subject";
 import {BehaviorSubject} from "rxjs/BehaviorSubject";
@@ -97,7 +97,9 @@ export class StateService{
   }
 
   next(response: any): void {
-    this.filteredTitles.next(response.data as Title[]);
+    let titles = Title.fromJson(response.data);
+
+    this.filteredTitles.next(titles);
     this.titlesCount.next(response.meta.count);
     if (response.meta.count < this.limit*(this.currentPage.getValue() - 1 )) {
       this.currentPage.next(1);
