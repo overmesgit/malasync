@@ -1,4 +1,4 @@
-import {NgModule}      from '@angular/core';
+import {NgModule, enableProdMode}      from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 import {FormsModule}   from '@angular/forms';
 import {HttpModule}    from "@angular/http";
@@ -15,7 +15,12 @@ import {FilterComponent} from "./filter.component";
 import {DndModule} from "ng2-dnd";
 import { MyDateRangePickerModule } from 'mydaterangepicker';
 
-
+class win extends Window {
+  prod: boolean;
+}
+if ((window as win).prod) {
+  enableProdMode();
+}
 @NgModule({
   imports: [
     BrowserModule,

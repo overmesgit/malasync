@@ -120,7 +120,7 @@ def get_sort_and_filters(body_fields):
                 filters.append(field_filter)
 
         if 'sort' in f:
-            sorting = model_field if f['sort'] == 'asc' else model_field.desc()
+            sorting = model_field.asc() if f['sort'] == 'asc' else model_field.desc()
     return join, user_name, fields, filters, sorting, related
 
 async def title_api(request):
