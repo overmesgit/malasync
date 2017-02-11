@@ -25,4 +25,4 @@ app.router.add_post('/api/title', title_api)
 app.router.add_post('/api/get-user-scores', get_user_scores)
 app.router.add_static('/static/', path='static', name='static')
 
-web.run_app(app, port=8002)
+web.run_app(app, host='127.0.0.1', port=8002)
