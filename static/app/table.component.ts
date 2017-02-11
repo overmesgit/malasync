@@ -23,6 +23,8 @@ import {BehaviorSubject, Subject} from "rxjs";
             <td *ngFor="let field of fields | async" [ngSwitch]="field.field">
                 <img *ngSwitchCase="'image'" [class.small-img]="!field.big" [class.big-img]="field.big"
                  src="{{showField(field, title[field.field])}}" />
+                <a *ngSwitchCase="'title'" target="_blank" href="{{getTitleUrl(title)}}">
+                    {{showField(field, title[field.field])}}</a>
                 <span *ngSwitchDefault>{{showField(field, title[field.field])}}</span>
             </td>
         </tr>
@@ -31,6 +33,13 @@ import {BehaviorSubject, Subject} from "rxjs";
   `,
 })
 export class TitleTableComponent {
+  intToStatus = {
+    '1': 'Watching',
+    '2': 'Completed',
+    '3': 'On-Hold',
+    '4': 'Dropped',
+    '6': 'Plan',
+  };
   private titles: Subject<Title[]>;
   private fields: BehaviorSubject<Field[]>;
   private query: BehaviorSubject<Field[]>;
@@ -42,8 +51,18 @@ export class TitleTableComponent {
     this.query = this.stateService.queryTerms;
   }
 
+  getTitleUrl(title: Title) {
+    let id = title.id;
+    if (title.id > 1000000) {
+      id -= 1000000;
+      return `https://myanimelist.net/manga/${id}`
+    } else {
+      return `https://myanimelist.net/anime/${id}`
+    }
+  }
+
   showField(field: Field, value: any): any {
-    if (!value) {
+    if (value == null) {
       return value;
     }
 
@@ -63,7 +82,11 @@ export class TitleTableComponent {
       case 'aired_to':
         return new Date(value).toLocaleString().split(',')[0];
       case 'userscore__last_update':
-        return new Date(value*1000).toLocaleString().split(',')[0]
+        return new Date(value*1000).toLocaleString().split(',')[0];
+      case 'userscore__score':
+        return value != 0 ? value: '';
+      case 'userscore__status':
+        return this.intToStatus[value];
     }
     return value;
   }

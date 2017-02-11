@@ -1,8 +1,11 @@
 import {Component}          from '@angular/core';
 import {StateService} from "./state.service";
 import {Field} from "./field";
-import {BehaviorSubject, Subject} from "rxjs";
+import {BehaviorSubject} from "rxjs";
 import {Http, Headers} from "@angular/http";
+
+let userStatuses = ['Watching/Reading', 'Completed', 'On-Hold', 'Dropped', 'Plan to Watch/Read'];
+
 
 @Component({
   moduleId: module.id,
@@ -70,7 +73,7 @@ export class UserSelectComponent {
     this.userName = userName;
 
     let score = new Field("userscore__score", "Score", "UserScore", true).withSorting().withNumFilter(0, 10, 1).withUser(this.userName);
-    let status = new Field("userscore__status", "Status", "UserStatus", true).withSorting().withNumFilter(0, 10, 1).withUser(this.userName);
+    let status = new Field("userscore__status", "Status", "UserStatus", true).withSorting().withSelectFilter(userStatuses).withUser(this.userName);
     let date = new Field("userscore__last_update", "Date", "UserDate", true).withSorting().withDateFilter().withUser(this.userName);
 
     let hasFields = false;

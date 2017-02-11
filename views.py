@@ -53,6 +53,14 @@ async def get_user_scores(request):
 # def get_fields(obj, fields):
 #     return {f['field']: getattr(obj, f['field'], None) for f in fields}
 
+status_to_int = {
+  'Watching/Reading': 1,
+  'Completed': 2,
+  'On-Hold': 3,
+  'Dropped': 4,
+  'Plan to Watch/Read': 6,
+}
+
 
 def get_sort_and_filters(body_fields):
     fields = []
@@ -75,7 +83,7 @@ def get_sort_and_filters(body_fields):
         if not model_field:
             raise Exception({'error': f'{f} not exists'})
         else:
-            if f.get('enable'):
+            if f.get('enable') or field_name == 'id':
                 fields.append(model_field if not alias else model_field.alias(alias))
 
             if 'filter' in f:
@@ -89,10 +97,15 @@ def get_sort_and_filters(body_fields):
                         field_filter = (start_date < model_field) & (model_field < end_date)
                     else:
                         field_filter = model_field.is_null(False)
-                elif field_name == 'type' or alias == 'userscore__status' or field_name == 'status':
+                elif alias == 'userscore__status':
+                    field_filter = model_field.in_(list(map(status_to_int.get, filter_)))
+                elif field_name == 'type' or field_name == 'status':
                     field_filter = model_field.in_(filter_)
                 elif field_name == 'genres':
-                    field_filter = model_field.contains_all(filter_)
+                    if f.get('exclude'):
+                        field_filter = model_field.contains_any(filter_)
+                    else:
+                        field_filter = model_field.contains_all(filter_)
                 else:
                     raise ValueError(message=f'{f} wrong filter')
 
