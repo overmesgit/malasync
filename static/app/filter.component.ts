@@ -78,7 +78,6 @@ export class FilterComponent {
   }
 
   onChanges(): void {
-    console.log(this.fields);
     this.stateService.fieldsTerms.next(this.fields.filter(f => f.enable));
     this.stateService.queryTerms.next(this.fields);
   }

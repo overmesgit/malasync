@@ -38,7 +38,6 @@ var FilterComponent = (function () {
         };
     };
     FilterComponent.prototype.onChanges = function () {
-        console.log(this.fields);
         this.stateService.fieldsTerms.next(this.fields.filter(function (f) { return f.enable; }));
         this.stateService.queryTerms.next(this.fields);
     };
