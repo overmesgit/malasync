@@ -14,8 +14,8 @@ MANGA_ID_OFFSET = 1000000
 
 
 class AnimeTopSpider(AbstractAsyncSpider):
-    def __init__(self, loop, limit):
-        super().__init__(loop, limit)
+    def __init__(self, loop, limit=None, session=None):
+        super().__init__(loop, limit, session)
         self.iterator = iter(range(0, 100000, 50))
         self.url_format = 'https://myanimelist.net/topanime.php?limit={}'
 
@@ -43,8 +43,8 @@ class AnimeTopSpider(AbstractAsyncSpider):
 
 
 class MangaTopSpider(AnimeTopSpider):
-    def __init__(self, loop, limit):
-        super().__init__(loop, limit)
+    def __init__(self, loop, limit=None, session=None):
+        super().__init__(loop, limit, session)
         self.url_format = 'https://myanimelist.net/topmanga.php?limit={}'
 
     async def save_result(self, parsed_data: List[Tuple[int, str, float]]):
@@ -82,8 +82,8 @@ class AnimeMangaSpider(AbstractAsyncSpider):
         "summary": "sum",
     }
 
-    def __init__(self, loop, limit):
-        super().__init__(loop, limit)
+    def __init__(self, loop, limit=None, session=None):
+        super().__init__(loop, limit, session)
         self.anime_format = 'https://myanimelist.net/anime/{}'
         self.manga_format = 'https://myanimelist.net/manga/{}'
         from async_db import objects

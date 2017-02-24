@@ -1,3 +1,4 @@
+import aiohttp
 import aiohttp_jinja2
 import jinja2
 from aiohttp import web
@@ -10,14 +11,16 @@ loop = asyncio.get_event_loop()
 app = web.Application(loop=loop)
 aiohttp_jinja2.setup(app, loader=jinja2.FileSystemLoader('static'))
 
-anime_top_updater = AnimeTopSpider(app.loop, 1)
+session = aiohttp.ClientSession(loop=loop, connector=aiohttp.TCPConnector(limit=1))
+
+anime_top_updater = AnimeTopSpider(app.loop, session=session)
 asyncio.ensure_future(anime_top_updater.endless_parser(24*3600))
 
-manga_top_updater = MangaTopSpider(app.loop, 1)
+manga_top_updater = MangaTopSpider(app.loop, session=session)
 asyncio.ensure_future(manga_top_updater.endless_parser(24*3600))
 
-anime_updater = AnimeMangaSpider(app.loop, 1)
-asyncio.ensure_future(anime_updater.start_parser())
+anime_updater = AnimeMangaSpider(app.loop, session=session)
+asyncio.ensure_future(anime_updater.endless_parser(10))
 
 
 app.router.add_get('/', index)

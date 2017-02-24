@@ -1,20 +1,28 @@
 import asyncio
+import traceback
 from http import HTTPStatus
 
 import aiohttp
+import sys
+
 from log import logger
 
 
 class AbstractAsyncSpider:
-    def __init__(self, loop, limit):
-        self.results_queue = asyncio.Queue(maxsize=10, loop=loop)
-        self.processing_urls_queue = asyncio.Queue(maxsize=limit, loop=loop)
-        self.retry_urls = asyncio.Queue(maxsize=10, loop=loop)
-
+    def __init__(self, loop, limit=None, session=None):
         self._loop = loop
-        self._conn = aiohttp.TCPConnector(limit=limit)
-        self._limit = limit
-        self._session = aiohttp.ClientSession(loop=loop, connector=self._conn)
+        if limit:
+            self._limit = limit
+            self._session = aiohttp.ClientSession(loop=loop, connector=aiohttp.TCPConnector(limit=limit))
+        elif session:
+            self._limit = session.connector._limit
+            self._session = session
+        else:
+            raise ValueError('Session or limit required')
+
+        self.results_queue = asyncio.Queue(maxsize=10, loop=loop)
+        self.processing_urls_queue = asyncio.Queue(maxsize=self._limit, loop=loop)
+        self.retry_urls = asyncio.Queue(maxsize=10, loop=loop)
 
         self._parsing = True
 
@@ -31,14 +39,18 @@ class AbstractAsyncSpider:
         while True:
             await self.start_parser()
             await asyncio.sleep(seconds_offset)
-            self.__init__(self._loop, self._limit)
+            self.__init__(self._loop, self._limit, self._session)
 
     async def start_parser(self):
-        parser_task = asyncio.ensure_future(self._page_parser())
-        saver_task = asyncio.ensure_future(self._save_results())
+        try:
+            parser_task = asyncio.ensure_future(self._page_parser())
+            saver_task = asyncio.ensure_future(self._save_results())
 
-        await asyncio.gather(parser_task, saver_task)
-        logger.info("parsing completed")
+            await asyncio.gather(parser_task, saver_task)
+            logger.info("parsing completed")
+        except Exception as e:
+            logger.error("fatal error {}".format(e))
+            traceback.print_exc(file=sys.stdout)
 
     def stop_parsing(self):
         self._parsing = False
