@@ -47,7 +47,7 @@ var initFields = [
     new field_1.Field("authors", "Authors", "Authors", false),
     new field_1.Field("serialization", "Serialization", "Serialization", false),
     new field_1.Field("rating", "Rating", "Rating", false),
-    new field_1.Field("id", "Id", "Id", false).withSorting().withNumFilter(1, 90000, 1),
+    new field_1.Field("id", "Id", "Id", false).withSorting(),
     new field_1.Field("episodes", "Episodes", "Ep.", false).withSorting().withNumFilter(1, 3000, 1),
     new field_1.Field("duration", "Duration", "Dur.", false).withSorting().withNumFilter(1, 500, 1),
     new field_1.Field("chapters", "Chapters", "Chapters", false).withSorting().withNumFilter(1, 15000, 1),
@@ -67,6 +67,7 @@ var StateService = (function () {
         this.titlesCount = new BehaviorSubject_1.BehaviorSubject(1);
         this.localStorage = localStorage;
         this.limit = 100;
+        this.initCopy = this.duplicateFieldArray(initFields);
         if (!('version' in this.localStorage)) {
             this.localStorage['version'] = 1;
         }
@@ -75,22 +76,36 @@ var StateService = (function () {
         }
         if ('fields' in this.localStorage) {
             var stored = JSON.parse(this.localStorage['fields']);
-            this.allFields.splice(0, this.allFields.length);
-            for (var _i = 0, stored_1 = stored; _i < stored_1.length; _i++) {
-                var f = stored_1[_i];
-                var d = new field_1.Field('', '', '', false);
-                for (var prop in f)
-                    d[prop] = f[prop];
-                this.allFields.push(d);
-            }
-            this.queryTerms.next(this.allFields);
-            this.fieldsTerms.next(this.allFields.filter(function (f) { return f.enable; }));
+            this.replaceFields(stored);
         }
         Observable_1.Observable.combineLatest(this.queryTerms.debounceTime(300), this.currentPage, function (v1, v2) { return [v1, v2]; })
             .distinctUntilChanged().subscribe(function (values) { return _this.fetch(values[0], values[1]); });
         this.currentPage.subscribe(function (value) { return _this.updatePageHistory(value); });
         this.fieldsTerms.subscribe(function (value) { return _this.updateFieldsHistory(value); });
     }
+    StateService.prototype.duplicateFieldArray = function (fields) {
+        var res = [];
+        for (var _i = 0, fields_1 = fields; _i < fields_1.length; _i++) {
+            var f = fields_1[_i];
+            var d = new field_1.Field('', '', '', false);
+            for (var prop in f)
+                d[prop] = f[prop];
+            res.push(d);
+        }
+        return res;
+    };
+    StateService.prototype.replaceFields = function (fields) {
+        this.allFields.splice(0, this.allFields.length);
+        for (var _i = 0, fields_2 = fields; _i < fields_2.length; _i++) {
+            var f = fields_2[_i];
+            var d = new field_1.Field('', '', '', false);
+            for (var prop in f)
+                d[prop] = f[prop];
+            this.allFields.push(d);
+        }
+        this.queryTerms.next(this.allFields);
+        this.fieldsTerms.next(this.allFields.filter(function (f) { return f.enable; }));
+    };
     StateService.prototype.updatePageHistory = function (page) {
         this.localStorage['page'] = page;
     };
@@ -117,8 +132,8 @@ var StateService = (function () {
         var offset = (page - 1) * limit;
         var query = { offset: offset, limit: limit };
         query['fields'] = [];
-        for (var _i = 0, fields_1 = fields; _i < fields_1.length; _i++) {
-            var f = fields_1[_i];
+        for (var _i = 0, fields_3 = fields; _i < fields_3.length; _i++) {
+            var f = fields_3[_i];
             query['fields'].push(f.getQuery());
         }
         return query;

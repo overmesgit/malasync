@@ -77,10 +77,24 @@ export class UserSelectComponent {
     let date = new Field("userscore__last_update", "Date", "UserDate", true).withSorting().withDateFilter().withUser(this.userName);
 
     let hasFields = false;
+    let toDelete: Field[] = [];
     for (let f of this.stateService.allFields) {
-      if (f.userName && (f.userName != this.userName || f.userName == this.userName)) {
-        f.userName = this.userName;
+      if (f.userName != undefined) {
+        if (userName) {
+          f.userName = this.userName;
+
+        } else {
+          toDelete.push(f);
+        }
         hasFields = true;
+      }
+    }
+    if (toDelete.length) {
+      for (let f of toDelete) {
+        let index = this.stateService.allFields.indexOf(f);
+        if (index > -1) {
+          this.stateService.allFields.splice(index, 1);
+        }
       }
     }
 

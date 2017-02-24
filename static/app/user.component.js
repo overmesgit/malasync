@@ -37,11 +37,26 @@ var UserSelectComponent = (function () {
         var status = new field_1.Field("userscore__status", "Status", "UserStatus", true).withSorting().withSelectFilter(userStatuses).withUser(this.userName);
         var date = new field_1.Field("userscore__last_update", "Date", "UserDate", true).withSorting().withDateFilter().withUser(this.userName);
         var hasFields = false;
+        var toDelete = [];
         for (var _i = 0, _a = this.stateService.allFields; _i < _a.length; _i++) {
             var f = _a[_i];
-            if (f.userName && (f.userName != this.userName || f.userName == this.userName)) {
-                f.userName = this.userName;
+            if (f.userName != undefined) {
+                if (userName) {
+                    f.userName = this.userName;
+                }
+                else {
+                    toDelete.push(f);
+                }
                 hasFields = true;
+            }
+        }
+        if (toDelete.length) {
+            for (var _b = 0, toDelete_1 = toDelete; _b < toDelete_1.length; _b++) {
+                var f = toDelete_1[_b];
+                var index = this.stateService.allFields.indexOf(f);
+                if (index > -1) {
+                    this.stateService.allFields.splice(index, 1);
+                }
             }
         }
         if (!hasFields) {

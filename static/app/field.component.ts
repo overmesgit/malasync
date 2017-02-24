@@ -9,7 +9,7 @@ import {SelectComponent} from "ng2-select/ng2-select";
   template: `
     <div class="card field-select">
       <div class="card-header">
-        Fields
+        Fields <button class="btn btn-sm btn-primary float-sm-right" (click)="onClearAll($event)">Default</button>
       </div>
       <div class="card-block">
         <ul class="list-group list-group-flush" dnd-sortable-container [sortableData]="fields">
@@ -48,6 +48,10 @@ export class FieldComponent {
 
   onDrop(): void {
     this.stateService.fieldsTerms.next(this.fields.filter(f => f.enable));
+  }
+
+  onClearAll(): void {
+    this.stateService.replaceFields(this.stateService.initCopy);
   }
 
   getRangeConfig(field: Field): any {

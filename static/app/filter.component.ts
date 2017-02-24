@@ -22,7 +22,7 @@ import {IMyOptions} from "mydatepicker";
                 <div class="col-sm-5">
                   <label class="form-check-label">
                     <input [(ngModel)]="field.orNull" (ngModelChange)="onChanges($event)" class="form-check-input" type="checkbox" value="">
-                    OrNull
+                    None
                   </label>
                 </div>
             </div>

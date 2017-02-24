@@ -21,6 +21,7 @@ let genres = ['Action', 'Adventure', 'Cars', 'Comedy', 'Dementia', 'Demons', 'Do
 
 let statuses = ["Not yet aired", "Currently Airing", "Finished Airing", "Not yet published", "Publishing", "Finished"];
 
+
 let initFields: Field[] = [
   new Field("image", "Image", "Image", true),
   new Field("type", "Type", "Type", true).withSelectFilter(typeValues),
@@ -41,7 +42,7 @@ let initFields: Field[] = [
   new Field("authors", "Authors", "Authors", false),
   new Field("serialization", "Serialization", "Serialization", false),
   new Field("rating", "Rating", "Rating", false),
-  new Field("id", "Id", "Id", false).withSorting().withNumFilter(1, 90000, 1),
+  new Field("id", "Id", "Id", false).withSorting(),
   new Field("episodes", "Episodes", "Ep.", false).withSorting().withNumFilter(1, 3000, 1),
   new Field("duration", "Duration", "Dur.", false).withSorting().withNumFilter(1, 500, 1),
   new Field("chapters", "Chapters", "Chapters", false).withSorting().withNumFilter(1, 15000, 1),
@@ -60,8 +61,11 @@ export class StateService{
   public titlesCount = new BehaviorSubject(1);
   private localStorage = localStorage;
   private limit = 100;
+  public initCopy: Field[];
 
   constructor(private http: Http) {
+    this.initCopy = this.duplicateFieldArray(initFields);
+
     if (!('version' in this.localStorage)) {
       this.localStorage['version'] = 1;
     }
@@ -72,20 +76,35 @@ export class StateService{
 
     if ('fields' in this.localStorage) {
       let stored = JSON.parse(this.localStorage['fields']);
-      this.allFields.splice(0, this.allFields.length);
-      for (let f of stored) {
-        let d = new Field('', '', '', false);
-        for (let prop in f) d[prop] = f[prop];
-        this.allFields.push(d);
-      }
-      this.queryTerms.next(this.allFields);
-      this.fieldsTerms.next(this.allFields.filter(f => f.enable));
+      this.replaceFields(stored);
     }
 
     Observable.combineLatest(this.queryTerms.debounceTime(300), this.currentPage, (v1, v2) => [v1, v2])
       .distinctUntilChanged().subscribe(values => this.fetch(values[0] as Field[], values[1] as number));
     this.currentPage.subscribe(value => this.updatePageHistory(value as number));
     this.fieldsTerms.subscribe(value => this.updateFieldsHistory(value as Field[]));
+  }
+
+  duplicateFieldArray(fields: Field[]) {
+    let res: Field[] = [];
+    for (let f of fields) {
+      let d = new Field('', '', '', false);
+      for (let prop in f) d[prop] = f[prop];
+      res.push(d);
+    }
+    return res;
+  }
+
+  replaceFields(fields: Field[]): void {
+    this.allFields.splice(0, this.allFields.length);
+    for (let f of fields) {
+      let d = new Field('', '', '', false);
+      for (let prop in f) d[prop] = f[prop];
+      this.allFields.push(d);
+    }
+    this.queryTerms.next(this.allFields);
+    this.fieldsTerms.next(this.allFields.filter(f => f.enable));
+
   }
 
   updatePageHistory(page: number): void {
