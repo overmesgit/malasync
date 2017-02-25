@@ -14,9 +14,11 @@ class AbstractAsyncSpider:
         if limit:
             self._limit = limit
             self._session = aiohttp.ClientSession(loop=loop, connector=aiohttp.TCPConnector(limit=limit))
+            self._close_session = True
         elif session:
             self._limit = session.connector._limit
             self._session = session
+            self._close_session = False
         else:
             raise ValueError('Session or limit required')
 
@@ -56,7 +58,7 @@ class AbstractAsyncSpider:
         self._parsing = False
 
     async def _page_parser(self):
-        async with self._session:
+        try:
             while self._parsing:
                 holder = {'url': ''}
                 await self.processing_urls_queue.put(holder)
@@ -64,6 +66,9 @@ class AbstractAsyncSpider:
                 asyncio.ensure_future(self._process_url(holder['url']))
             await self.processing_urls_queue.join()
             await self.results_queue.put(None)
+        finally:
+            if self._close_session:
+                self._session.close()
 
     async def _get_next_url_or_retry(self):
         if self.retry_urls.qsize() > 0:
