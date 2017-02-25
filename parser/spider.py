@@ -112,6 +112,7 @@ class AbstractAsyncSpider:
                     await self.save_result(parsed_data)
                 except Exception as ex:
                     logger.error("save exception: {}".format(ex))
+                    traceback.print_exc(file=sys.stdout)
 
 
 if __name__ == '__main__':
