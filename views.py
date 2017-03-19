@@ -130,7 +130,7 @@ async def title_api(request):
     query = TitleModel.select(*fields)
     if join:
         user = await objects.get(User, name=user_name)
-        query = query.join(*join, JOIN.LEFT_OUTER).where((UserScore.user == user.id) | UserScore.user.is_null(True))
+        query = query.join(*join, JOIN.LEFT_OUTER, on=(TitleModel.id == UserScore.title) & (UserScore.user == user.id))
     if filters:
         query = query.where(*filters)
     if sorting:
