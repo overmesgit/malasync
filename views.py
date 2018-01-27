@@ -21,6 +21,8 @@ async def index(request):
 
 main_url = 'http://myanimelist.net'
 main_api_url = '/malappinfo.php?u={0}&status={1}&type={2}'
+
+
 async def get_user_scores(request):
     body = await request.json()
 
@@ -123,6 +125,7 @@ def get_sort_and_filters(body_fields):
             sorting = model_field.asc() if f['sort'] == 'asc' else model_field.desc()
     return join, user_name, fields, filters, sorting, related
 
+
 async def title_api(request):
     body = await request.json()
 
@@ -139,7 +142,7 @@ async def title_api(request):
         else:
             query = query.order_by(Clause(sorting, SQL('NULLS FIRST')))
     paged_query = query.offset(body['offset']).limit(body['limit'])
-    data = await objects.execute(paged_query.dicts())
+    data = list(paged_query.dicts())
     if related:
         all_related_ids = {r['i'] for row in data for r in row.get('related') or [] if r}
         rel_query = TitleModel.select(TitleModel.title, TitleModel.id).where(TitleModel.id.in_(all_related_ids))

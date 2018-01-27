@@ -1,5 +1,7 @@
 import ujson
-from aiohttp.web_reqrep import StreamResponse
+
+from aiohttp.web_response import StreamResponse
+
 
 async def compress_json(request, data):
     stream = StreamResponse(status=200,
